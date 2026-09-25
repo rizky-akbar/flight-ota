@@ -55,7 +55,7 @@ export default function FlightSearchForm({ onSearch, isLoading, initialQuery }: 
   const totalPassengers = adults + children + infants;
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-slate-200/90 p-4 sm:p-6 relative">
+    <div className="bg-white rounded-2xl shadow-xl border border-slate-200/90 p-4 sm:p-6 relative text-slate-900">
       {/* Quick Route Preset Pills (Mobile Horizontal Scroll Strip) */}
       <div className="mb-4 pb-3 border-b border-slate-100">
         <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1 touch-pan-x">
@@ -302,13 +302,14 @@ export default function FlightSearchForm({ onSearch, isLoading, initialQuery }: 
                   onClick={() => setIsPassengerOpen(false)}
                 />
 
-                <div className="fixed sm:absolute inset-x-4 bottom-4 sm:bottom-auto sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:w-72 bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 sm:p-5 z-50 text-xs animate-in fade-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-150">
+                <div className="fixed sm:absolute inset-x-3 bottom-4 sm:bottom-auto sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:w-80 bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 sm:p-5 z-50 text-xs text-slate-900 animate-in fade-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-150">
                   <div className="flex items-center justify-between pb-3 mb-2 border-b border-slate-100">
-                    <span className="font-extrabold text-sm text-slate-900">Jumlah Penumpang</span>
+                    <span className="font-black text-sm text-slate-900">Jumlah Penumpang</span>
                     <button
                       type="button"
                       onClick={() => setIsPassengerOpen(false)}
-                      className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                      aria-label="Tutup"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -317,24 +318,24 @@ export default function FlightSearchForm({ onSearch, isLoading, initialQuery }: 
                   {/* Adults */}
                   <div className="flex items-center justify-between py-2.5 border-b border-slate-100">
                     <div>
-                      <div className="font-bold text-slate-800 text-xs sm:text-sm">Dewasa (Adult)</div>
-                      <div className="text-[11px] text-slate-400">Usia 12+ tahun</div>
+                      <div className="font-extrabold text-slate-900 text-xs sm:text-sm">Dewasa (Adult)</div>
+                      <div className="text-[11px] text-slate-500 font-medium">Usia 12+ tahun</div>
                     </div>
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
                         disabled={adults <= 1}
                         onClick={() => setAdults(Math.max(1, adults - 1))}
-                        className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center font-bold text-base text-slate-700 disabled:opacity-40 active:bg-slate-200"
+                        className="w-8 h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 flex items-center justify-center font-black text-sm text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         -
                       </button>
-                      <span className="font-bold w-5 text-center text-sm">{adults}</span>
+                      <span className="font-black w-6 text-center text-sm sm:text-base text-slate-900">{adults}</span>
                       <button
                         type="button"
                         disabled={adults >= 9}
                         onClick={() => setAdults(adults + 1)}
-                        className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center font-bold text-base text-slate-700 disabled:opacity-40 active:bg-slate-200"
+                        className="w-8 h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 flex items-center justify-center font-black text-sm text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         +
                       </button>
@@ -344,24 +345,24 @@ export default function FlightSearchForm({ onSearch, isLoading, initialQuery }: 
                   {/* Children */}
                   <div className="flex items-center justify-between py-2.5 border-b border-slate-100">
                     <div>
-                      <div className="font-bold text-slate-800 text-xs sm:text-sm">Anak (Child)</div>
-                      <div className="text-[11px] text-slate-400">Usia 2 - 11 tahun</div>
+                      <div className="font-extrabold text-slate-900 text-xs sm:text-sm">Anak (Child)</div>
+                      <div className="text-[11px] text-slate-500 font-medium">Usia 2 - 11 tahun</div>
                     </div>
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
                         disabled={children <= 0}
                         onClick={() => setChildren(Math.max(0, children - 1))}
-                        className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center font-bold text-base text-slate-700 disabled:opacity-40 active:bg-slate-200"
+                        className="w-8 h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 flex items-center justify-center font-black text-sm text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         -
                       </button>
-                      <span className="font-bold w-5 text-center text-sm">{children}</span>
+                      <span className="font-black w-6 text-center text-sm sm:text-base text-slate-900">{children}</span>
                       <button
                         type="button"
                         disabled={children >= 6}
                         onClick={() => setChildren(children + 1)}
-                        className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center font-bold text-base text-slate-700 disabled:opacity-40 active:bg-slate-200"
+                        className="w-8 h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 flex items-center justify-center font-black text-sm text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         +
                       </button>
@@ -371,24 +372,24 @@ export default function FlightSearchForm({ onSearch, isLoading, initialQuery }: 
                   {/* Infants */}
                   <div className="flex items-center justify-between py-2.5 mb-3">
                     <div>
-                      <div className="font-bold text-slate-800 text-xs sm:text-sm">Bayi (Infant)</div>
-                      <div className="text-[11px] text-slate-400">&lt; 2 tahun (pangkuan)</div>
+                      <div className="font-extrabold text-slate-900 text-xs sm:text-sm">Bayi (Infant)</div>
+                      <div className="text-[11px] text-slate-500 font-medium">&lt; 2 tahun (pangkuan)</div>
                     </div>
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
                         disabled={infants <= 0}
                         onClick={() => setInfants(Math.max(0, infants - 1))}
-                        className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center font-bold text-base text-slate-700 disabled:opacity-40 active:bg-slate-200"
+                        className="w-8 h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 flex items-center justify-center font-black text-sm text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         -
                       </button>
-                      <span className="font-bold w-5 text-center text-sm">{infants}</span>
+                      <span className="font-black w-6 text-center text-sm sm:text-base text-slate-900">{infants}</span>
                       <button
                         type="button"
                         disabled={infants >= adults}
                         onClick={() => setInfants(infants + 1)}
-                        className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center font-bold text-base text-slate-700 disabled:opacity-40 active:bg-slate-200"
+                        className="w-8 h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 flex items-center justify-center font-black text-sm text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                       >
                         +
                       </button>
@@ -398,7 +399,7 @@ export default function FlightSearchForm({ onSearch, isLoading, initialQuery }: 
                   <button
                     type="button"
                     onClick={() => setIsPassengerOpen(false)}
-                    className="w-full py-2.5 bg-sky-700 text-white font-bold text-xs rounded-xl hover:bg-sky-800 active:scale-98 transition-all shadow"
+                    className="w-full py-2.5 bg-sky-700 hover:bg-sky-800 text-white font-black text-xs rounded-xl shadow transition-all active:scale-98"
                   >
                     Terapkan Penumpang
                   </button>

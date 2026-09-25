@@ -119,9 +119,9 @@ export default function HomePage() {
       <Navbar currency={currency} onCurrencyChange={setCurrency} />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 text-white pt-6 sm:pt-10 pb-16 sm:pb-20 px-3 sm:px-4 overflow-hidden">
+      <section className="relative z-30 bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 text-white pt-6 sm:pt-10 pb-16 sm:pb-20 px-3 sm:px-4">
         {/* Background glow & subtle patterns */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none overflow-hidden" />
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-[11px] sm:text-xs font-semibold text-amber-300 mb-4 sm:mb-5">
             <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
@@ -167,7 +167,7 @@ export default function HomePage() {
       </section>
 
       {/* Main Results Section */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mt-6 z-20 flex-1 w-full pb-16">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 -mt-6 relative z-10 flex-1 w-full pb-16">
         {/* API Connection Indicator */}
         <div className="mb-3.5 sm:mb-4">
           {isRealGalileoApi ? (

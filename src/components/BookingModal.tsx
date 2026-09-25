@@ -355,7 +355,7 @@ export default function BookingModal({
                         <select
                           value={pax.title}
                           onChange={(e) => handlePassengerChange(index, 'title', e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold min-h-[38px]"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold min-h-[38px] text-slate-900"
                         >
                           <option value="Mr">Mr (Tuan)</option>
                           <option value="Mrs">Mrs (Nyonya)</option>
@@ -406,7 +406,7 @@ export default function BookingModal({
                           type="date"
                           value={pax.passportExpiry}
                           onChange={(e) => handlePassengerChange(index, 'passportExpiry', e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs min-h-[38px]"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs min-h-[38px] text-slate-900 font-semibold"
                         />
                       </div>
 
@@ -415,7 +415,7 @@ export default function BookingModal({
                         <select
                           value={pax.nationality}
                           onChange={(e) => handlePassengerChange(index, 'nationality', e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs min-h-[38px]"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs min-h-[38px] text-slate-900 font-semibold"
                         >
                           <option value="Indonesia">Indonesia</option>
                           <option value="Egypt">Egypt (Mesir)</option>
