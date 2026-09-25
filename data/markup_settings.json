@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "mode": "fixed",
+  "percentage": 5,
+  "fixedAmountUsd": 30,
+  "fixedAmountEgp": 1470,
+  "applyPer": "ticket",
+  "airlineOverrides": [
+    {
+      "carrierCode": "SV",
+      "carrierName": "Saudia Airlines",
+      "fixedAmountUsd": 50,
+      "fixedAmountEgp": 2450
+    }
+  ],
+  "lastUpdated": "2026-09-19T23:06:14.373Z"
+}

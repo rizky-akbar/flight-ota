@@ -1,0 +1,485 @@
+[
+  {
+    "bookingId": "EGID-M843SU",
+    "createdAt": "2026-09-19T22:50:01.563Z",
+    "status": "Pending",
+    "flightOffer": {
+      "id": "CUSTOM-FLIGHT-1789836227687-0",
+      "source": "Galileo-Live",
+      "providerCode": "1G",
+      "validatingCarrier": "MS",
+      "validatingCarrierName": "EgyptAir Student Special",
+      "carrierLogoUrl": "https://images.kiwi.com/airlines/64/MS.png",
+      "cabinClass": "Economy",
+      "seatsRemaining": 15,
+      "baggageSummary": "2 x 23 kg Checked Baggage",
+      "refundable": true,
+      "price": {
+        "currency": "USD",
+        "totalAmountIdr": 8900000,
+        "totalAmountUsd": 585,
+        "baseFareIdr": 7565000,
+        "taxAndFeesIdr": 1335000,
+        "totalAmountEgp": 28665,
+        "baseFareUsd": 501,
+        "baseFareEgp": 24549,
+        "taxAndFeesUsd": 84,
+        "taxAndFeesEgp": 4116,
+        "markup": {
+          "mode": "fixed",
+          "percentageApplied": 0,
+          "fixedAmountUsdApplied": 25,
+          "totalMarkupUsd": 25,
+          "totalMarkupEgp": 1225,
+          "netCostUsd": 560,
+          "netCostEgp": 27440
+        }
+      },
+      "outbound": {
+        "origin": "CGK",
+        "destination": "CAI",
+        "departureTime": "2026-10-30T10:00:00",
+        "arrivalTime": "2026-10-30T19:00:00",
+        "durationMinutes": 540,
+        "stops": 0,
+        "stopAirports": [],
+        "segments": [
+          {
+            "carrierCode": "MS",
+            "carrierName": "EgyptAir Student Special",
+            "flightNumber": "MS-777",
+            "origin": "CGK",
+            "destination": "CAI",
+            "departureTime": "2026-10-30T10:00:00",
+            "arrivalTime": "2026-10-30T19:00:00",
+            "durationMinutes": 540,
+            "aircraft": "Boeing 787-9",
+            "baggageAllowance": "2 x 23 kg Checked Baggage"
+          }
+        ]
+      }
+    },
+    "contact": {
+      "fullName": "rizky akbar",
+      "email": "mylootvault@gmail.com",
+      "phoneNumber": "6281236676391",
+      "notes": ""
+    },
+    "passengers": [
+      {
+        "id": "pax-1",
+        "title": "Mr",
+        "firstName": "Rizky",
+        "lastName": "Akbar",
+        "type": "ADT",
+        "passportNumber": "aaaasdfasdfad",
+        "passportExpiry": "2026-12-31",
+        "nationality": "Indonesia",
+        "dateOfBirth": ""
+      }
+    ],
+    "specialRequests": {
+      "mealPreference": "Muslim / Halal Meal (MOML)",
+      "extraBaggage": "No Extra Baggage",
+      "wheelchair": false,
+      "studentVisaAssistance": false,
+      "umrahTransitPackage": false
+    },
+    "totalEstimatedPriceUsd": 585,
+    "totalEstimatedPriceEgp": 28665,
+    "totalEstimatedPriceIdr": 8900000
+  },
+  {
+    "bookingId": "EGID-5NTMTB",
+    "createdAt": "2026-09-19T22:48:17.217Z",
+    "status": "Pending",
+    "flightOffer": {
+      "id": "test-1",
+      "source": "Galileo-Live",
+      "providerCode": "1G",
+      "validatingCarrier": "MS",
+      "validatingCarrierName": "EgyptAir",
+      "cabinClass": "Economy",
+      "price": {
+        "currency": "USD",
+        "totalAmountUsd": 600,
+        "totalAmountEgp": 29400,
+        "baseFareUsd": 520,
+        "baseFareEgp": 25480,
+        "taxAndFeesUsd": 80,
+        "taxAndFeesEgp": 3920
+      },
+      "outbound": {
+        "origin": "CGK",
+        "destination": "CAI",
+        "departureTime": "2026-10-01T10:00",
+        "arrivalTime": "2026-10-01T20:00",
+        "durationMinutes": 600,
+        "stops": 1,
+        "stopAirports": [
+          "BKK"
+        ],
+        "segments": []
+      }
+    },
+    "contact": {
+      "fullName": "Test Traveler",
+      "phoneNumber": "081122334455",
+      "email": "test@traveler.com"
+    },
+    "passengers": [
+      {
+        "id": "p1",
+        "title": "Mr",
+        "firstName": "Test",
+        "lastName": "Traveler",
+        "type": "ADT",
+        "passportNumber": "A12345678",
+        "passportExpiry": "2030-01-01",
+        "nationality": "Indonesia",
+        "dateOfBirth": "1990-01-01"
+      }
+    ],
+    "totalEstimatedPriceUsd": 600,
+    "totalEstimatedPriceEgp": 29400,
+    "totalEstimatedPriceIdr": 0
+  },
+  {
+    "bookingId": "EGID-JE7BKB",
+    "createdAt": "2026-09-19T17:04:25.263Z",
+    "status": "Pending",
+    "flightOffer": {
+      "id": "CUSTOM-FLIGHT-1789836227687-0",
+      "source": "Galileo-Live",
+      "providerCode": "1G",
+      "validatingCarrier": "MS",
+      "validatingCarrierName": "EgyptAir Student Special",
+      "carrierLogoUrl": "https://images.kiwi.com/airlines/64/MS.png",
+      "cabinClass": "Economy",
+      "seatsRemaining": 15,
+      "baggageSummary": "2 x 23 kg Checked Baggage",
+      "refundable": true,
+      "price": {
+        "currency": "USD",
+        "totalAmountIdr": 8900000,
+        "totalAmountUsd": 560,
+        "baseFareIdr": 7565000,
+        "taxAndFeesIdr": 1335000,
+        "totalAmountEgp": 27440,
+        "baseFareUsd": 476,
+        "baseFareEgp": 23324,
+        "taxAndFeesUsd": 84,
+        "taxAndFeesEgp": 4116
+      },
+      "outbound": {
+        "origin": "CGK",
+        "destination": "CAI",
+        "departureTime": "2026-10-30T10:00:00",
+        "arrivalTime": "2026-10-30T19:00:00",
+        "durationMinutes": 540,
+        "stops": 0,
+        "stopAirports": [],
+        "segments": [
+          {
+            "carrierCode": "MS",
+            "carrierName": "EgyptAir Student Special",
+            "flightNumber": "MS-777",
+            "origin": "CGK",
+            "destination": "CAI",
+            "departureTime": "2026-10-30T10:00:00",
+            "arrivalTime": "2026-10-30T19:00:00",
+            "durationMinutes": 540,
+            "aircraft": "Boeing 787-9",
+            "baggageAllowance": "2 x 23 kg Checked Baggage"
+          }
+        ]
+      }
+    },
+    "contact": {
+      "fullName": "Youssef Mansour",
+      "phoneNumber": "201012345678",
+      "email": "youssef@example.com",
+      "notes": "Cairo student travel"
+    },
+    "passengers": [
+      {
+        "id": "pax-1",
+        "title": "Mr",
+        "firstName": "Youssef",
+        "lastName": "Mansour",
+        "type": "ADT",
+        "passportNumber": "A8899001",
+        "passportExpiry": "2030-01-01",
+        "nationality": "Egypt",
+        "dateOfBirth": "1998-07-20"
+      }
+    ],
+    "totalEstimatedPriceUsd": 560,
+    "totalEstimatedPriceEgp": 27440,
+    "totalEstimatedPriceIdr": 8900000
+  },
+  {
+    "bookingId": "EGID-NMKCVH",
+    "createdAt": "2026-09-16T19:35:21.346Z",
+    "status": "Contacted",
+    "flightOffer": {
+      "id": "GALILEO-1G-SV-mu4i32jb-0",
+      "source": "Galileo-UAPI-Simulated",
+      "providerCode": "1G",
+      "validatingCarrier": "SV",
+      "validatingCarrierName": "Saudia Airlines",
+      "carrierLogoUrl": "https://images.kiwi.com/airlines/64/SV.png",
+      "cabinClass": "Economy",
+      "seatsRemaining": 4,
+      "baggageSummary": "2 x 23 kg Checked Baggage + 7 kg Cabin",
+      "refundable": true,
+      "price": {
+        "currency": "USD",
+        "totalAmountIdr": 10667050,
+        "totalAmountUsd": 673,
+        "baseFareIdr": 9351500,
+        "taxAndFeesIdr": 1315550,
+        "totalAmountEgp": 32977,
+        "baseFareUsd": 572,
+        "baseFareEgp": 28030,
+        "taxAndFeesUsd": 101,
+        "taxAndFeesEgp": 4947
+      },
+      "outbound": {
+        "origin": "CGK",
+        "destination": "CAI",
+        "departureTime": "2026-09-30T11:00:00",
+        "arrivalTime": "2026-09-30T21:15:00",
+        "durationMinutes": 615,
+        "stops": 1,
+        "stopAirports": [
+          "JED"
+        ],
+        "segments": [
+          {
+            "carrierCode": "SV",
+            "carrierName": "Saudia Airlines",
+            "flightNumber": "SV-819",
+            "origin": "CGK",
+            "destination": "JED",
+            "departureTime": "2026-09-30T11:00:00",
+            "arrivalTime": "2026-09-30T17:10:00",
+            "durationMinutes": 370,
+            "aircraft": "Boeing 777-300ER",
+            "bookingClass": "Economy Saver",
+            "baggageAllowance": "2 x 23 kg Checked Baggage + 7 kg Cabin"
+          },
+          {
+            "carrierCode": "SV",
+            "carrierName": "Saudia Airlines",
+            "flightNumber": "SV-301",
+            "origin": "JED",
+            "destination": "CAI",
+            "departureTime": "2026-09-30T19:30:00",
+            "arrivalTime": "2026-09-30T21:15:00",
+            "durationMinutes": 105,
+            "aircraft": "Airbus A330-300",
+            "bookingClass": "Economy Saver",
+            "baggageAllowance": "2 x 23 kg Checked Baggage + 7 kg Cabin"
+          }
+        ]
+      }
+    },
+    "contact": {
+      "email": "fauzi@example.com",
+      "fullName": "Ahmad Fauzi",
+      "phoneNumber": "081234567890",
+      "notes": "Tolong seat dekat jendela"
+    },
+    "passengers": [
+      {
+        "passportNumber": "X1234567",
+        "id": "pax-1",
+        "type": "ADT",
+        "firstName": "Ahmad",
+        "lastName": "Fauzi",
+        "nationality": "Indonesia",
+        "dateOfBirth": "1995-05-20",
+        "passportExpiry": "2030-01-01",
+        "title": "Mr"
+      }
+    ],
+    "specialRequests": {
+      "studentVisaAssistance": true,
+      "mealPreference": "Muslim / Halal Meal (MOML)",
+      "extraBaggage": "No Extra Baggage"
+    },
+    "totalEstimatedPriceIdr": 10667050,
+    "totalEstimatedPriceUsd": 673,
+    "totalEstimatedPriceEgp": 32977
+  },
+  {
+    "bookingId": "EGID-9K4M2P",
+    "createdAt": "2026-09-17T02:15:00.000Z",
+    "status": "Pending",
+    "flightOffer": {
+      "id": "GALILEO-1G-SV-sample-1",
+      "source": "Galileo-Live",
+      "providerCode": "1G",
+      "validatingCarrier": "SV",
+      "validatingCarrierName": "Saudia Airlines",
+      "carrierLogoUrl": "https://images.kiwi.com/airlines/64/SV.png",
+      "cabinClass": "Economy",
+      "seatsRemaining": 4,
+      "baggageSummary": "2 x 23 kg Checked Baggage + 7 kg Cabin",
+      "refundable": true,
+      "price": {
+        "currency": "USD",
+        "totalAmountIdr": 9351500,
+        "totalAmountUsd": 590,
+        "baseFareIdr": 8135000,
+        "taxAndFeesIdr": 1216500,
+        "totalAmountEgp": 28910,
+        "baseFareUsd": 502,
+        "baseFareEgp": 24574,
+        "taxAndFeesUsd": 89,
+        "taxAndFeesEgp": 4337
+      },
+      "outbound": {
+        "origin": "CGK",
+        "destination": "CAI",
+        "departureTime": "2026-10-15T11:00:00",
+        "arrivalTime": "2026-10-15T21:15:00",
+        "durationMinutes": 855,
+        "stops": 1,
+        "stopAirports": [
+          "JED"
+        ],
+        "segments": [
+          {
+            "carrierCode": "SV",
+            "carrierName": "Saudia Airlines",
+            "flightNumber": "SV-819",
+            "origin": "CGK",
+            "destination": "JED",
+            "departureTime": "2026-10-15T11:00:00",
+            "arrivalTime": "2026-10-15T17:10:00",
+            "durationMinutes": 550,
+            "aircraft": "Boeing 777-300ER",
+            "baggageAllowance": "2 x 23 kg"
+          },
+          {
+            "carrierCode": "SV",
+            "carrierName": "Saudia Airlines",
+            "flightNumber": "SV-301",
+            "origin": "JED",
+            "destination": "CAI",
+            "departureTime": "2026-10-15T19:30:00",
+            "arrivalTime": "2026-10-15T21:15:00",
+            "durationMinutes": 105,
+            "aircraft": "Airbus A330-300",
+            "baggageAllowance": "2 x 23 kg"
+          }
+        ]
+      }
+    },
+    "contact": {
+      "fullName": "Ustadz Abdullah Hakim",
+      "email": "abdullah.hakim@example.com",
+      "phoneNumber": "081298765432",
+      "notes": "Mahasiswa Al-Azhar Kairo tingkat 3, tolong pastikan jatah bagasi 2 x 23 kg aktif."
+    },
+    "passengers": [
+      {
+        "id": "pax-1",
+        "title": "Mr",
+        "firstName": "Abdullah",
+        "lastName": "Hakim",
+        "type": "ADT",
+        "passportNumber": "B9876543",
+        "passportExpiry": "2029-08-14",
+        "nationality": "Indonesia",
+        "dateOfBirth": "2002-04-12"
+      }
+    ],
+    "specialRequests": {
+      "mealPreference": "Muslim / Halal Meal (MOML)",
+      "extraBaggage": "No Extra Baggage",
+      "wheelchair": false,
+      "studentVisaAssistance": true,
+      "umrahTransitPackage": false
+    },
+    "totalEstimatedPriceIdr": 9351500,
+    "totalEstimatedPriceUsd": 590,
+    "totalEstimatedPriceEgp": 28910
+  },
+  {
+    "bookingId": "EGID-EXP001",
+    "createdAt": "2026-10-18T12:00:00Z",
+    "status": "Confirmed",
+    "flightOffer": {
+      "id": "OFFER-EGID-EXP001",
+      "source": "Galileo-Live",
+      "providerCode": "1G",
+      "validatingCarrier": "SV",
+      "validatingCarrierName": "Saudia Airlines",
+      "cabinClass": "Economy",
+      "seatsRemaining": 5,
+      "baggageSummary": "2 x 23 kg Checked Baggage",
+      "refundable": true,
+      "price": {
+        "currency": "USD",
+        "totalAmountIdr": 9450000,
+        "totalAmountUsd": 595,
+        "baseFareIdr": 8032500,
+        "taxAndFeesIdr": 1417500,
+        "totalAmountEgp": 29155,
+        "baseFareUsd": 506,
+        "baseFareEgp": 24782,
+        "taxAndFeesUsd": 89,
+        "taxAndFeesEgp": 4373
+      },
+      "outbound": {
+        "origin": "CGK",
+        "destination": "CAI",
+        "departureTime": "2026-10-25T11:00:00",
+        "arrivalTime": "2026-10-25T21:15:00",
+        "durationMinutes": 600,
+        "stops": 1,
+        "stopAirports": [
+          "JED"
+        ],
+        "segments": [
+          {
+            "carrierCode": "SV",
+            "carrierName": "Saudia Airlines",
+            "flightNumber": "SV-819",
+            "origin": "CGK",
+            "destination": "CAI",
+            "departureTime": "2026-10-25T11:00:00",
+            "arrivalTime": "2026-10-25T21:15:00",
+            "durationMinutes": 600,
+            "baggageAllowance": "2 x 23 kg"
+          }
+        ]
+      }
+    },
+    "contact": {
+      "fullName": "Dewi Sartika",
+      "phoneNumber": "081399998888",
+      "email": "dewi@example.com",
+      "notes": "Booking rombongan keluarga"
+    },
+    "passengers": [
+      {
+        "id": "pax-1",
+        "title": "Mrs",
+        "firstName": "Dewi",
+        "lastName": "Sartika",
+        "type": "ADT",
+        "passportNumber": "C77665544",
+        "passportExpiry": "2032-11-20",
+        "nationality": "Indonesia",
+        "dateOfBirth": "1992-03-15"
+      }
+    ],
+    "totalEstimatedPriceIdr": 9450000,
+    "totalEstimatedPriceUsd": 595,
+    "totalEstimatedPriceEgp": 29155
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "mode": "paypal_realtime",
+  "baseCurrency": "USD",
+  "paypalSpreadPercent": 0,
+  "autoSync": true,
+  "cacheExpiryMinutes": 30,
+  "lastSyncTime": "2026-09-25T10:48:36.038Z",
+  "source": "paypal_realtime",
+  "rates": {
+    "EGP": {
+      "interbankRate": 51.7,
+      "paypalSpreadPercent": 4,
+      "paypalRate": 49.63,
+      "lastUpdated": "2026-09-25T10:48:36.038Z"
+    },
+    "IDR": {
+      "interbankRate": 17907,
+      "paypalSpreadPercent": 3.5,
+      "paypalRate": 17280,
+      "lastUpdated": "2026-09-25T10:48:36.038Z"
+    }
+  },
+  "manualRates": {
+    "EGP": 50.05,
+    "IDR": 15850
+  }
+}

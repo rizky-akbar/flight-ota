@@ -1,0 +1,49 @@
+[
+  {
+    "id": "CUSTOM-FLIGHT-1789836227687-0",
+    "source": "Galileo-Live",
+    "providerCode": "1G",
+    "validatingCarrier": "MS",
+    "validatingCarrierName": "EgyptAir Student Special",
+    "carrierLogoUrl": "https://images.kiwi.com/airlines/64/MS.png",
+    "cabinClass": "Economy",
+    "seatsRemaining": 15,
+    "baggageSummary": "2 x 23 kg Checked Baggage",
+    "refundable": true,
+    "price": {
+      "currency": "USD",
+      "totalAmountIdr": 8900000,
+      "totalAmountUsd": 560,
+      "baseFareIdr": 7565000,
+      "taxAndFeesIdr": 1335000,
+      "totalAmountEgp": 27440,
+      "baseFareUsd": 476,
+      "baseFareEgp": 23324,
+      "taxAndFeesUsd": 84,
+      "taxAndFeesEgp": 4116
+    },
+    "outbound": {
+      "origin": "CGK",
+      "destination": "CAI",
+      "departureTime": "2026-10-30T10:00:00",
+      "arrivalTime": "2026-10-30T19:00:00",
+      "durationMinutes": 540,
+      "stops": 0,
+      "stopAirports": [],
+      "segments": [
+        {
+          "carrierCode": "MS",
+          "carrierName": "EgyptAir Student Special",
+          "flightNumber": "MS-777",
+          "origin": "CGK",
+          "destination": "CAI",
+          "departureTime": "2026-10-30T10:00:00",
+          "arrivalTime": "2026-10-30T19:00:00",
+          "durationMinutes": 540,
+          "aircraft": "Boeing 787-9",
+          "baggageAllowance": "2 x 23 kg Checked Baggage"
+        }
+      ]
+    }
+  }
+]
