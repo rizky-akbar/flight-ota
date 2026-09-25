@@ -1,9 +1,9 @@
 import { getFilePath, safeReadFileSync, safeWriteFileSync } from './storage';
 
 export interface CurrencyRateInfo {
-  interbankRate: number; // Wholesale market rate (e.g. 52.14)
-  paypalSpreadPercent: number; // PayPal FX spread % (e.g. 4.0%)
-  paypalRate: number; // Effective rate with PayPal fee applied (e.g. 50.05 or 54.22)
+  interbankRate: number; // Wholesale market rate (e.g. 51.70)
+  paypalSpreadPercent: number; // PayPal FX spread % (0 for pure market rate, or 3-4%)
+  paypalRate: number; // Effective rate (e.g. 51.70 or with spread applied)
   lastUpdated: string;
 }
 
@@ -18,39 +18,54 @@ export interface CurrencySettings {
     EGP: number;
     IDR: number;
   };
-  paypalSpreadPercent: number; // Default 4.0%
+  paypalSpreadPercent: number; // 0 for exact market rate, default 0 or user-chosen
   autoSync: boolean;
-  cacheExpiryMinutes: number; // Default 30 minutes
+  cacheExpiryMinutes: number; // Default 5 minutes for genuine real-time accuracy
   lastSyncTime: string;
-  source: string; // 'paypal_realtime' | 'paypal_official_api' | 'manual'
+  source: string;
+}
+
+export interface RealtimeRatesMatrix {
+  usdToEgp: number;
+  egpToUsd: number;
+  usdToIdr: number;
+  idrToUsd: number;
+  egpToIdr: number;
+  idrToEgp: number;
+  interbankEgp: number;
+  interbankIdr: number;
+  paypalSpreadPercent: number;
+  mode: 'paypal_realtime' | 'manual';
+  source: string;
+  lastUpdated: string;
 }
 
 // Default initial baseline settings
 export const DEFAULT_CURRENCY_SETTINGS: CurrencySettings = {
   mode: 'paypal_realtime',
   baseCurrency: 'USD',
-  paypalSpreadPercent: 4.0, // Standard PayPal cross-border currency conversion spread
+  paypalSpreadPercent: 0, // Direct real-time market rate by default
   autoSync: true,
-  cacheExpiryMinutes: 30,
+  cacheExpiryMinutes: 5, // 5 minutes cache for real-time freshness
   lastSyncTime: new Date().toISOString(),
   source: 'paypal_realtime',
   rates: {
     EGP: {
-      interbankRate: 52.14,
-      paypalSpreadPercent: 4.0,
-      paypalRate: 50.05, // e.g. 52.14 * (1 - 0.04) = 50.05
+      interbankRate: 51.70,
+      paypalSpreadPercent: 0,
+      paypalRate: 51.70,
       lastUpdated: new Date().toISOString(),
     },
     IDR: {
-      interbankRate: 17775,
-      paypalSpreadPercent: 3.5,
-      paypalRate: 17150,
+      interbankRate: 17907,
+      paypalSpreadPercent: 0,
+      paypalRate: 17907,
       lastUpdated: new Date().toISOString(),
     },
   },
   manualRates: {
-    EGP: 49.0,
-    IDR: 15850,
+    EGP: 51.70,
+    IDR: 17907,
   },
 };
 
@@ -104,75 +119,70 @@ export function saveStoredCurrencySettings(settings: CurrencySettings): Currency
 }
 
 /**
- * Attempts to fetch live rates from PayPal Official API if credentials are present in env
+ * Fetches real-time institutional exchange rates from live providers
  */
-async function fetchFromPayPalOfficialApi(): Promise<{ egp?: number; idr?: number } | null> {
-  const clientId = process.env.PAYPAL_CLIENT_ID;
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
-    return null;
-  }
-
-  try {
-    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-    const tokenRes = await fetch('https://api-m.paypal.com/v1/oauth2/token', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: 'grant_type=client_credentials',
-      signal: AbortSignal.timeout(5000),
-    });
-
-    if (!tokenRes.ok) return null;
-    const tokenData = await tokenRes.json();
-    const accessToken = tokenData.access_token;
-    if (!accessToken) return null;
-
-    // Call PayPal Pricing/Quote API
-    const quoteRes = await fetch('https://api-m.paypal.com/v2/pricing/quote-exchange-rates', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        source_currency: 'USD',
-        target_currencies: ['EGP', 'IDR'],
+async function fetchFromLiveProviders(): Promise<{ egp: number; idr: number } | null> {
+  const providers = [
+    {
+      name: 'open.er-api.com',
+      url: 'https://open.er-api.com/v6/latest/USD',
+      extract: (data: any) => ({
+        egp: typeof data?.rates?.EGP === 'number' ? data.rates.EGP : null,
+        idr: typeof data?.rates?.IDR === 'number' ? data.rates.IDR : null,
       }),
-      signal: AbortSignal.timeout(5000),
-    });
+    },
+    {
+      name: 'exchangerate-api.com',
+      url: 'https://api.exchangerate-api.com/v4/latest/USD',
+      extract: (data: any) => ({
+        egp: typeof data?.rates?.EGP === 'number' ? data.rates.EGP : null,
+        idr: typeof data?.rates?.IDR === 'number' ? data.rates.IDR : null,
+      }),
+    },
+    {
+      name: 'currency-api-cdn',
+      url: 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
+      extract: (data: any) => ({
+        egp: typeof data?.usd?.egp === 'number' ? data.usd.egp : null,
+        idr: typeof data?.usd?.idr === 'number' ? data.usd.idr : null,
+      }),
+    },
+  ];
 
-    if (!quoteRes.ok) return null;
-    const quoteData = await quoteRes.json();
-    // Parse quotes
-    const result: { egp?: number; idr?: number } = {};
-    if (Array.isArray(quoteData.quotes)) {
-      for (const q of quoteData.quotes) {
-        if (q.target_currency === 'EGP' && q.exchange_rate) {
-          result.egp = parseFloat(q.exchange_rate);
-        }
-        if (q.target_currency === 'IDR' && q.exchange_rate) {
-          result.idr = parseFloat(q.exchange_rate);
+  for (const provider of providers) {
+    try {
+      const res = await fetch(provider.url, {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(6000),
+        cache: 'no-store',
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const extracted = provider.extract(json);
+        if (extracted.egp && extracted.idr) {
+          return {
+            egp: Math.round(extracted.egp * 100) / 100,
+            idr: Math.round(extracted.idr),
+          };
         }
       }
+    } catch {
+      // Continue to next provider
     }
-    return result;
-  } catch (err) {
-    console.warn('[Currency] PayPal official API call bypassed, using live interbank feed:', err);
-    return null;
   }
+
+  return null;
 }
 
 /**
- * Fetches real-time market exchange rates from open feed and applies PayPal's FX conversion formula
+ * Fetches real-time market exchange rates and applies configured spread
  */
 export async function fetchLiveExchangeRates(force = false): Promise<CurrencySettings> {
   const current = getStoredCurrencySettings();
   const now = Date.now();
-  const cacheTtlMs = (current.cacheExpiryMinutes || 30) * 60 * 1000;
+  // 5 minutes cache for real-time freshness
+  const cacheTtlMs = (current.cacheExpiryMinutes || 5) * 60 * 1000;
 
   // Return cached if not forced and within cache TTL
   if (!force && lastFetchTimestamp > 0 && now - lastFetchTimestamp < cacheTtlMs) {
@@ -185,57 +195,19 @@ export async function fetchLiveExchangeRates(force = false): Promise<CurrencySet
   }
 
   try {
-    // 1. Try PayPal official API first if credentials configured
-    const officialRates = await fetchFromPayPalOfficialApi();
-    if (officialRates && officialRates.egp && officialRates.egp > 0) {
-      const updated: CurrencySettings = {
-        ...current,
-        source: 'paypal_official_api',
-        lastSyncTime: new Date().toISOString(),
-        rates: {
-          EGP: {
-            interbankRate: officialRates.egp,
-            paypalSpreadPercent: 0,
-            paypalRate: Math.round(officialRates.egp * 100) / 100,
-            lastUpdated: new Date().toISOString(),
-          },
-          IDR: {
-            interbankRate: officialRates.idr || current.rates.IDR.interbankRate,
-            paypalSpreadPercent: 0,
-            paypalRate: Math.round(officialRates.idr || current.rates.IDR.paypalRate),
-            lastUpdated: new Date().toISOString(),
-          },
-        },
-      };
-      lastFetchTimestamp = now;
-      return saveStoredCurrencySettings(updated);
-    }
+    const liveRates = await fetchFromLiveProviders();
+    if (liveRates && liveRates.egp > 0 && liveRates.idr > 0) {
+      const rawEgp = liveRates.egp;
+      const rawIdr = liveRates.idr;
+      const spread = typeof current.paypalSpreadPercent === 'number' ? current.paypalSpreadPercent : 0;
 
-    // 2. Fetch live interbank rate from real-time institutional feed (open.er-api.com)
-    const res = await fetch('https://open.er-api.com/v6/latest/USD', {
-      headers: { 'Accept': 'application/json' },
-      signal: AbortSignal.timeout(8000),
-      cache: 'no-store',
-    });
-
-    if (!res.ok) {
-      throw new Error(`Exchange rate provider returned HTTP ${res.status}`);
-    }
-
-    const data = await res.json();
-    if (data && data.rates && typeof data.rates.EGP === 'number') {
-      const rawEgp = data.rates.EGP; // e.g. 52.14
-      const rawIdr = typeof data.rates.IDR === 'number' ? data.rates.IDR : 17775;
-
-      const spread = current.paypalSpreadPercent || 4.0;
-
-      // PayPal retail rate formula:
-      // When exchanging USD to local currency or quoting local pricing,
-      // PayPal applies the spread to the interbank rate.
-      // We calculate the effective PayPal converted rate:
-      // For local currency quote: interbankRate * (1 - spread/100)
-      const paypalEgp = Math.round(rawEgp * (1 - spread / 100) * 100) / 100;
-      const paypalIdr = Math.round(rawIdr * (1 - (spread - 0.5) / 100));
+      // Effective rates with optional spread applied
+      const effectiveEgp = spread > 0
+        ? Math.round(rawEgp * (1 - spread / 100) * 100) / 100
+        : rawEgp;
+      const effectiveIdr = spread > 0
+        ? Math.round(rawIdr * (1 - spread / 100))
+        : rawIdr;
 
       const updated: CurrencySettings = {
         ...current,
@@ -243,22 +215,21 @@ export async function fetchLiveExchangeRates(force = false): Promise<CurrencySet
         lastSyncTime: new Date().toISOString(),
         rates: {
           EGP: {
-            interbankRate: Math.round(rawEgp * 100) / 100,
+            interbankRate: rawEgp,
             paypalSpreadPercent: spread,
-            paypalRate: paypalEgp,
+            paypalRate: effectiveEgp,
             lastUpdated: new Date().toISOString(),
           },
           IDR: {
-            interbankRate: Math.round(rawIdr),
-            paypalSpreadPercent: spread - 0.5,
-            paypalRate: paypalIdr,
+            interbankRate: rawIdr,
+            paypalSpreadPercent: spread,
+            paypalRate: effectiveIdr,
             lastUpdated: new Date().toISOString(),
           },
         },
       };
 
       lastFetchTimestamp = now;
-      console.log(`[Currency] Updated PayPal Realtime Rate: 1 USD = ${paypalEgp} EGP (Interbank: ${rawEgp.toFixed(2)}, Spread: ${spread}%)`);
       return saveStoredCurrencySettings(updated);
     }
   } catch (err: any) {
@@ -268,48 +239,131 @@ export async function fetchLiveExchangeRates(force = false): Promise<CurrencySet
   return current;
 }
 
+/* ==================== EXCHANGE RATE GETTERS ==================== */
+
 /**
- * Returns the active USD to EGP exchange rate
+ * 1 USD ➔ EGP
  */
 export function getUsdToEgpRate(): number {
   const settings = getStoredCurrencySettings();
   if (settings.mode === 'manual' && settings.manualRates?.EGP) {
     return settings.manualRates.EGP;
   }
-  return settings.rates.EGP.paypalRate || 50.05;
+  return settings.rates.EGP.paypalRate || settings.rates.EGP.interbankRate || 51.70;
 }
 
 /**
- * Returns the active USD to IDR exchange rate
+ * 1 EGP ➔ USD (Vice Versa)
+ */
+export function getEgpToUsdRate(): number {
+  const usdToEgp = getUsdToEgpRate();
+  return usdToEgp > 0 ? Math.round((1 / usdToEgp) * 100000) / 100000 : 0.01934;
+}
+
+/**
+ * 1 USD ➔ IDR
  */
 export function getUsdToIdrRate(): number {
   const settings = getStoredCurrencySettings();
   if (settings.mode === 'manual' && settings.manualRates?.IDR) {
     return settings.manualRates.IDR;
   }
-  return settings.rates.IDR.paypalRate || 17150;
+  return settings.rates.IDR.paypalRate || settings.rates.IDR.interbankRate || 17907;
 }
 
 /**
- * Converts USD to EGP using the active PayPal exchange rate
+ * 1 IDR ➔ USD (Vice Versa)
+ */
+export function getIdrToUsdRate(): number {
+  const usdToIdr = getUsdToIdrRate();
+  return usdToIdr > 0 ? Math.round((1 / usdToIdr) * 10000000) / 10000000 : 0.0000558;
+}
+
+/**
+ * 1 EGP ➔ IDR (Cross-Rate)
+ */
+export function getEgpToIdrRate(): number {
+  const usdToEgp = getUsdToEgpRate();
+  const usdToIdr = getUsdToIdrRate();
+  return usdToEgp > 0 ? Math.round((usdToIdr / usdToEgp) * 100) / 100 : 346.36;
+}
+
+/**
+ * 1 IDR ➔ EGP (Vice Versa Cross-Rate)
+ */
+export function getIdrToEgpRate(): number {
+  const egpToIdr = getEgpToIdrRate();
+  return egpToIdr > 0 ? Math.round((1 / egpToIdr) * 100000) / 100000 : 0.00289;
+}
+
+/* ==================== CONVERSION FUNCTIONS ==================== */
+
+/**
+ * USD ➔ EGP
  */
 export function convertUsdToEgp(usd: number): number {
-  const rate = getUsdToEgpRate();
-  return Math.round(usd * rate);
+  return Math.round(usd * getUsdToEgpRate());
 }
 
 /**
- * Converts EGP to USD using the active PayPal exchange rate
+ * EGP ➔ USD (Vice Versa)
  */
 export function convertEgpToUsd(egp: number): number {
-  const rate = getUsdToEgpRate();
-  return rate > 0 ? Math.round((egp / rate) * 10) / 10 : 0;
+  return Math.round(egp * getEgpToUsdRate() * 100) / 100;
 }
 
 /**
- * Converts USD to IDR using the active PayPal exchange rate
+ * USD ➔ IDR
  */
 export function convertUsdToIdr(usd: number): number {
-  const rate = getUsdToIdrRate();
-  return Math.round(usd * rate);
+  return Math.round(usd * getUsdToIdrRate());
+}
+
+/**
+ * IDR ➔ USD (Vice Versa)
+ */
+export function convertIdrToUsd(idr: number): number {
+  return Math.round(idr * getIdrToUsdRate() * 100) / 100;
+}
+
+/**
+ * EGP ➔ IDR
+ */
+export function convertEgpToIdr(egp: number): number {
+  return Math.round(egp * getEgpToIdrRate());
+}
+
+/**
+ * IDR ➔ EGP (Vice Versa)
+ */
+export function convertIdrToEgp(idr: number): number {
+  return Math.round(idr * getIdrToEgpRate() * 100) / 100;
+}
+
+/**
+ * Full Realtime Currency Matrix
+ */
+export function getRealtimeRatesMatrix(): RealtimeRatesMatrix {
+  const settings = getStoredCurrencySettings();
+  const usdToEgp = getUsdToEgpRate();
+  const egpToUsd = getEgpToUsdRate();
+  const usdToIdr = getUsdToIdrRate();
+  const idrToUsd = getIdrToUsdRate();
+  const egpToIdr = getEgpToIdrRate();
+  const idrToEgp = getIdrToEgpRate();
+
+  return {
+    usdToEgp,
+    egpToUsd,
+    usdToIdr,
+    idrToUsd,
+    egpToIdr,
+    idrToEgp,
+    interbankEgp: settings.rates.EGP.interbankRate || usdToEgp,
+    interbankIdr: settings.rates.IDR.interbankRate || usdToIdr,
+    paypalSpreadPercent: settings.paypalSpreadPercent ?? 0,
+    mode: settings.mode,
+    source: settings.source,
+    lastUpdated: settings.rates.EGP.lastUpdated || settings.lastSyncTime || new Date().toISOString(),
+  };
 }

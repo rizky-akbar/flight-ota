@@ -1,39 +1,39 @@
 import { NextResponse } from 'next/server';
-import { fetchLiveExchangeRates, getUsdToEgpRate, getUsdToIdrRate, getStoredCurrencySettings } from '@/lib/currency';
+import { fetchLiveExchangeRates, getRealtimeRatesMatrix } from '@/lib/currency';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  Pragma: 'no-cache',
+  Expires: '0',
+};
+
 export async function GET() {
   try {
-    // Attempt non-forced sync if cache expired
+    // Attempt live sync if cache expired (5 min TTL)
     await fetchLiveExchangeRates(false);
 
-    const settings = getStoredCurrencySettings();
-    const usdToEgp = getUsdToEgpRate();
-    const usdToIdr = getUsdToIdrRate();
+    const rate = getRealtimeRatesMatrix();
 
-    return NextResponse.json({
-      success: true,
-      rate: {
-        usdToEgp,
-        usdToIdr,
-        interbankEgp: settings.rates.EGP.interbankRate,
-        paypalSpreadPercent: settings.paypalSpreadPercent,
-        mode: settings.mode,
-        source: settings.source,
-        lastUpdated: settings.rates.EGP.lastUpdated,
-      },
-    });
-  } catch (error: any) {
-    console.error('Error fetching currency rate:', error);
     return NextResponse.json(
       {
-        success: false,
-        error: error.message || 'Failed to fetch currency rate',
-        fallbackRate: { usdToEgp: 50.05, usdToIdr: 17150 },
+        success: true,
+        rate,
       },
-      { status: 500 }
+      { headers: NO_CACHE_HEADERS }
+    );
+  } catch (error: any) {
+    console.error('Error fetching currency rate:', error);
+    const rate = getRealtimeRatesMatrix();
+    return NextResponse.json(
+      {
+        success: true,
+        rate,
+        warning: 'Serving cached rates due to network delay',
+      },
+      { headers: NO_CACHE_HEADERS }
     );
   }
 }

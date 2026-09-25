@@ -3,24 +3,36 @@ import {
   fetchLiveExchangeRates,
   getStoredCurrencySettings,
   saveStoredCurrencySettings,
+  getRealtimeRatesMatrix,
   CurrencySettings,
 } from '@/lib/currency';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  Pragma: 'no-cache',
+  Expires: '0',
+};
+
 export async function GET() {
   try {
     const settings = await fetchLiveExchangeRates(false);
-    return NextResponse.json({
-      success: true,
-      settings,
-    });
+    const matrix = getRealtimeRatesMatrix();
+    return NextResponse.json(
+      {
+        success: true,
+        settings,
+        matrix,
+      },
+      { headers: NO_CACHE_HEADERS }
+    );
   } catch (error: any) {
     console.error('Error fetching admin currency settings:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to fetch currency settings' },
-      { status: 500 }
+      { status: 500, headers: NO_CACHE_HEADERS }
     );
   }
 }
@@ -32,58 +44,94 @@ export async function POST(request: NextRequest) {
     if (body.action === 'refresh') {
       // Force immediate refresh of live rates
       const updated = await fetchLiveExchangeRates(true);
-      return NextResponse.json({
-        success: true,
-        message: 'Kurs real-time PayPal berhasil diperbarui langsung dari feed!',
-        settings: updated,
-      });
+      const matrix = getRealtimeRatesMatrix();
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Kurs real-time berhasil diperbarui langsung dari feed pasar!',
+          settings: updated,
+          matrix,
+        },
+        { headers: NO_CACHE_HEADERS }
+      );
     }
 
     const current = getStoredCurrencySettings();
     const newMode = ['paypal_realtime', 'manual'].includes(body.mode) ? body.mode : current.mode;
-    const newSpread = typeof body.paypalSpreadPercent === 'number' ? Math.max(0, Math.min(20, body.paypalSpreadPercent)) : current.paypalSpreadPercent;
+    const newSpread =
+      typeof body.paypalSpreadPercent === 'number'
+        ? Math.max(0, Math.min(20, body.paypalSpreadPercent))
+        : current.paypalSpreadPercent;
+
+    const rawEgp = current.rates.EGP.interbankRate || 51.70;
+    const rawIdr = current.rates.IDR.interbankRate || 17907;
+
+    const manualEgp =
+      typeof body.manualEgp === 'number' && body.manualEgp > 0
+        ? body.manualEgp
+        : current.manualRates?.EGP || 51.70;
+
+    const manualIdr =
+      typeof body.manualIdr === 'number' && body.manualIdr > 0
+        ? body.manualIdr
+        : current.manualRates?.IDR || 17907;
 
     let updatedSettings: CurrencySettings = {
       ...current,
       mode: newMode,
       paypalSpreadPercent: newSpread,
       manualRates: {
-        EGP: typeof body.manualEgp === 'number' && body.manualEgp > 0 ? body.manualEgp : current.manualRates?.EGP || 49.0,
-        IDR: typeof body.manualIdr === 'number' && body.manualIdr > 0 ? body.manualIdr : current.manualRates?.IDR || 15850,
+        EGP: manualEgp,
+        IDR: manualIdr,
+      },
+      rates: {
+        EGP: {
+          ...current.rates.EGP,
+          paypalSpreadPercent: newSpread,
+          paypalRate: newSpread > 0 ? Math.round(rawEgp * (1 - newSpread / 100) * 100) / 100 : rawEgp,
+          lastUpdated: new Date().toISOString(),
+        },
+        IDR: {
+          ...current.rates.IDR,
+          paypalSpreadPercent: newSpread,
+          paypalRate: newSpread > 0 ? Math.round(rawIdr * (1 - newSpread / 100)) : rawIdr,
+          lastUpdated: new Date().toISOString(),
+        },
       },
     };
-
-    // If spread changed, recalculate paypal rates
-    if (newSpread !== current.paypalSpreadPercent) {
-      const rawEgp = updatedSettings.rates.EGP.interbankRate || 52.14;
-      const rawIdr = updatedSettings.rates.IDR.interbankRate || 17775;
-      updatedSettings.rates.EGP.paypalSpreadPercent = newSpread;
-      updatedSettings.rates.EGP.paypalRate = Math.round(rawEgp * (1 - newSpread / 100) * 100) / 100;
-      updatedSettings.rates.IDR.paypalRate = Math.round(rawIdr * (1 - (newSpread - 0.5) / 100));
-    }
 
     const saved = saveStoredCurrencySettings(updatedSettings);
 
     // If switched to realtime, trigger a refresh
-    if (newMode === 'paypal_realtime' && current.mode !== 'paypal_realtime') {
+    if (newMode === 'paypal_realtime') {
       const fresh = await fetchLiveExchangeRates(true);
-      return NextResponse.json({
-        success: true,
-        message: 'Pengaturan kurs diperbarui ke Mode PayPal Real-Time!',
-        settings: fresh,
-      });
+      const matrix = getRealtimeRatesMatrix();
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Pengaturan kurs diperbarui ke Mode Real-Time Pasar!',
+          settings: fresh,
+          matrix,
+        },
+        { headers: NO_CACHE_HEADERS }
+      );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Pengaturan kurs berhasil disimpan!',
-      settings: saved,
-    });
+    const matrix = getRealtimeRatesMatrix();
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Pengaturan kurs berhasil disimpan!',
+        settings: saved,
+        matrix,
+      },
+      { headers: NO_CACHE_HEADERS }
+    );
   } catch (error: any) {
     console.error('Error updating currency settings:', error);
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to save currency settings' },
-      { status: 500 }
+      { status: 500, headers: NO_CACHE_HEADERS }
     );
   }
 }

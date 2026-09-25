@@ -1,12 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Check, ArrowRightLeft, DollarSign, Globe, Sliders, ShieldCheck, Clock, TrendingUp } from 'lucide-react';
+import { RefreshCw, Check, ArrowRightLeft, DollarSign, Globe, Sliders, ShieldCheck, Clock, TrendingUp, ArrowRight } from 'lucide-react';
 
 interface CurrencyRateData {
   usdToEgp: number;
+  egpToUsd: number;
   usdToIdr: number;
+  idrToUsd: number;
+  egpToIdr: number;
+  idrToEgp: number;
   interbankEgp: number;
+  interbankIdr: number;
   paypalSpreadPercent: number;
   mode: 'paypal_realtime' | 'manual';
   source: string;
@@ -16,6 +21,23 @@ interface CurrencyRateData {
 interface AdminCurrencyPanelProps {
   onRateUpdated?: (rate: number) => void;
 }
+
+type ConversionDirection =
+  | 'USD_TO_EGP'
+  | 'EGP_TO_USD'
+  | 'USD_TO_IDR'
+  | 'IDR_TO_USD'
+  | 'EGP_TO_IDR'
+  | 'IDR_TO_EGP';
+
+const DIRECTION_LABELS: Record<ConversionDirection, { label: string; from: string; to: string; prefix: string }> = {
+  USD_TO_EGP: { label: 'USD ➔ EGP', from: 'USD ($)', to: 'EGP (ج.م)', prefix: '$' },
+  EGP_TO_USD: { label: 'EGP ➔ USD', from: 'EGP (ج.م)', to: 'USD ($)', prefix: 'EGP' },
+  USD_TO_IDR: { label: 'USD ➔ IDR', from: 'USD ($)', to: 'IDR (Rp)', prefix: '$' },
+  IDR_TO_USD: { label: 'IDR ➔ USD', from: 'IDR (Rp)', to: 'USD ($)', prefix: 'Rp' },
+  EGP_TO_IDR: { label: 'EGP ➔ IDR', from: 'EGP (ج.م)', to: 'IDR (Rp)', prefix: 'EGP' },
+  IDR_TO_EGP: { label: 'IDR ➔ EGP', from: 'IDR (Rp)', to: 'EGP (ج.م)', prefix: 'Rp' },
+};
 
 export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanelProps) {
   const [data, setData] = useState<CurrencyRateData | null>(null);
@@ -27,11 +49,13 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
 
   // Edit config state
   const [editMode, setEditMode] = useState<'paypal_realtime' | 'manual'>('paypal_realtime');
-  const [editSpread, setEditSpread] = useState<number>(4.0);
-  const [editManualEgp, setEditManualEgp] = useState<number>(49.0);
+  const [editSpread, setEditSpread] = useState<number>(0);
+  const [editManualEgp, setEditManualEgp] = useState<number>(51.70);
+  const [editManualIdr, setEditManualIdr] = useState<number>(17907);
 
-  // Quick Calculator
-  const [calcUsd, setCalcUsd] = useState<number>(100);
+  // Quick Calculator state
+  const [calcDirection, setCalcDirection] = useState<ConversionDirection>('USD_TO_EGP');
+  const [calcAmount, setCalcAmount] = useState<number>(100);
 
   const fetchRates = async () => {
     setIsLoading(true);
@@ -41,8 +65,9 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
       if (json.success && json.rate) {
         setData(json.rate);
         setEditMode(json.rate.mode || 'paypal_realtime');
-        setEditSpread(json.rate.paypalSpreadPercent ?? 4.0);
-        setEditManualEgp(json.rate.usdToEgp || 49.0);
+        setEditSpread(json.rate.paypalSpreadPercent ?? 0);
+        setEditManualEgp(json.rate.usdToEgp || 51.70);
+        setEditManualIdr(json.rate.usdToIdr || 17907);
         if (onRateUpdated) onRateUpdated(json.rate.usdToEgp);
       }
     } catch (err) {
@@ -66,20 +91,24 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
         body: JSON.stringify({ action: 'refresh' }),
       });
       const json = await res.json();
-      if (json.success && json.settings) {
-        const s = json.settings;
-        const newRate: CurrencyRateData = {
-          usdToEgp: s.rates.EGP.paypalRate,
-          usdToIdr: s.rates.IDR.paypalRate,
-          interbankEgp: s.rates.EGP.interbankRate,
-          paypalSpreadPercent: s.paypalSpreadPercent,
-          mode: s.mode,
-          source: s.source,
-          lastUpdated: s.rates.EGP.lastUpdated,
+      if (json.success) {
+        const matrix: CurrencyRateData = json.matrix || {
+          usdToEgp: json.settings.rates.EGP.paypalRate,
+          egpToUsd: 1 / json.settings.rates.EGP.paypalRate,
+          usdToIdr: json.settings.rates.IDR.paypalRate,
+          idrToUsd: 1 / json.settings.rates.IDR.paypalRate,
+          egpToIdr: json.settings.rates.IDR.paypalRate / json.settings.rates.EGP.paypalRate,
+          idrToEgp: json.settings.rates.EGP.paypalRate / json.settings.rates.IDR.paypalRate,
+          interbankEgp: json.settings.rates.EGP.interbankRate,
+          interbankIdr: json.settings.rates.IDR.interbankRate,
+          paypalSpreadPercent: json.settings.paypalSpreadPercent,
+          mode: json.settings.mode,
+          source: json.settings.source,
+          lastUpdated: json.settings.rates.EGP.lastUpdated,
         };
-        setData(newRate);
-        setToastMessage('Kurs real-time PayPal berhasil disinkronkan langsung dari pasar!');
-        if (onRateUpdated) onRateUpdated(newRate.usdToEgp);
+        setData(matrix);
+        setToastMessage('Kurs real-time USD/EGP & USD/IDR serta vice versa berhasil disinkronkan langsung dari pasar!');
+        if (onRateUpdated) onRateUpdated(matrix.usdToEgp);
         setTimeout(() => setToastMessage(null), 4000);
       }
     } catch (err: any) {
@@ -100,24 +129,17 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
           mode: editMode,
           paypalSpreadPercent: editSpread,
           manualEgp: editManualEgp,
+          manualIdr: editManualIdr,
         }),
       });
       const json = await res.json();
-      if (json.success && json.settings) {
-        const s = json.settings;
-        const newRate: CurrencyRateData = {
-          usdToEgp: s.mode === 'manual' ? s.manualRates?.EGP || editManualEgp : s.rates.EGP.paypalRate,
-          usdToIdr: s.mode === 'manual' ? s.manualRates?.IDR || 15850 : s.rates.IDR.paypalRate,
-          interbankEgp: s.rates.EGP.interbankRate,
-          paypalSpreadPercent: s.paypalSpreadPercent,
-          mode: s.mode,
-          source: s.source,
-          lastUpdated: s.rates.EGP.lastUpdated,
-        };
-        setData(newRate);
-        setToastMessage('Pengaturan kurs PayPal berhasil disimpan!');
+      if (json.success) {
+        if (json.matrix) {
+          setData(json.matrix);
+          if (onRateUpdated) onRateUpdated(json.matrix.usdToEgp);
+        }
+        setToastMessage('Pengaturan kurs berhasil disimpan!');
         setShowConfig(false);
-        if (onRateUpdated) onRateUpdated(newRate.usdToEgp);
         setTimeout(() => setToastMessage(null), 4000);
       }
     } catch (err: any) {
@@ -144,9 +166,86 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
     }
   };
 
-  const currentEgpRate = data?.usdToEgp || 50.05;
-  const currentIdrRate = data?.usdToIdr || 17150;
+  const handleDirectionChange = (newDir: ConversionDirection) => {
+    setCalcDirection(newDir);
+    // Adjust friendly default amounts if switching units
+    if (newDir === 'IDR_TO_USD' || newDir === 'IDR_TO_EGP') {
+      if (calcAmount <= 100) setCalcAmount(1000000);
+    } else if (newDir === 'EGP_TO_USD' || newDir === 'EGP_TO_IDR') {
+      if (calcAmount >= 100000 || calcAmount <= 10) setCalcAmount(500);
+    } else {
+      if (calcAmount >= 10000) setCalcAmount(100);
+    }
+  };
+
+  const calculateConversion = () => {
+    if (!data) return { resultFormatted: '0', rateFormula: '', note: '' };
+    const amount = Number(calcAmount) || 0;
+
+    switch (calcDirection) {
+      case 'USD_TO_EGP': {
+        const val = amount * data.usdToEgp;
+        return {
+          resultFormatted: `${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EGP`,
+          rateFormula: `1 USD = ${data.usdToEgp} EGP`,
+          note: `Interbank: ${data.interbankEgp} EGP`,
+        };
+      }
+      case 'EGP_TO_USD': {
+        const val = amount * (data.egpToUsd || (1 / data.usdToEgp));
+        return {
+          resultFormatted: `$${val.toFixed(2)} USD`,
+          rateFormula: `1 EGP = $${(data.egpToUsd || (1 / data.usdToEgp)).toFixed(4)} USD`,
+          note: `Kebalikan dari 1 USD = ${data.usdToEgp} EGP`,
+        };
+      }
+      case 'USD_TO_IDR': {
+        const val = Math.round(amount * data.usdToIdr);
+        return {
+          resultFormatted: `Rp ${val.toLocaleString('id-ID')}`,
+          rateFormula: `1 USD = Rp ${Math.round(data.usdToIdr).toLocaleString('id-ID')}`,
+          note: `Interbank: Rp ${Math.round(data.interbankIdr).toLocaleString('id-ID')}`,
+        };
+      }
+      case 'IDR_TO_USD': {
+        const val = amount * (data.idrToUsd || (1 / data.usdToIdr));
+        return {
+          resultFormatted: `$${val.toFixed(2)} USD`,
+          rateFormula: `100.000 IDR = $${(100000 * (data.idrToUsd || (1 / data.usdToIdr))).toFixed(2)} USD`,
+          note: `1 IDR = $${(data.idrToUsd || (1 / data.usdToIdr)).toFixed(6)} USD`,
+        };
+      }
+      case 'EGP_TO_IDR': {
+        const val = Math.round(amount * (data.egpToIdr || (data.usdToIdr / data.usdToEgp)));
+        return {
+          resultFormatted: `Rp ${val.toLocaleString('id-ID')}`,
+          rateFormula: `1 EGP = Rp ${(data.egpToIdr || (data.usdToIdr / data.usdToEgp)).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}`,
+          note: `Cross-Rate Langsung Real-Time`,
+        };
+      }
+      case 'IDR_TO_EGP': {
+        const val = amount * (data.idrToEgp || (data.usdToEgp / data.usdToIdr));
+        return {
+          resultFormatted: `${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} EGP`,
+          rateFormula: `1.000 IDR = ${(1000 * (data.idrToEgp || (data.usdToEgp / data.usdToIdr))).toFixed(2)} EGP`,
+          note: `Cross-Rate Langsung Real-Time`,
+        };
+      }
+      default:
+        return { resultFormatted: '0', rateFormula: '', note: '' };
+    }
+  };
+
+  const currentEgpRate = data?.usdToEgp || 51.70;
+  const currentEgpToUsd = data?.egpToUsd || (1 / currentEgpRate);
+  const currentIdrRate = data?.usdToIdr || 17907;
+  const currentIdrToUsd = data?.idrToUsd || (1 / currentIdrRate);
+  const currentEgpToIdr = data?.egpToIdr || (currentIdrRate / currentEgpRate);
+  const currentIdrToEgp = data?.idrToEgp || (currentEgpRate / currentIdrRate);
   const isRealtime = data?.mode === 'paypal_realtime';
+
+  const calcResult = calculateConversion();
+  const dirConfig = DIRECTION_LABELS[calcDirection];
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6 transition-all">
@@ -158,7 +257,7 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-sm sm:text-base font-black">Kurs Valuta Asing Real-Time (PayPal Rate)</h2>
+              <h2 className="text-sm sm:text-base font-black">Kurs Valuta Asing Real-Time (USD, EGP & IDR)</h2>
               <span
                 className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border flex items-center space-x-1 ${
                   isRealtime
@@ -166,11 +265,11 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
                     : 'bg-amber-500/20 text-amber-300 border-amber-400/40'
                 }`}
               >
-                <span>{isRealtime ? '● PAYPAL REALTIME' : '○ MANUAL OVERRIDE'}</span>
+                <span>{isRealtime ? '● REAL-TIME PASS-THROUGH' : '○ MANUAL OVERRIDE'}</span>
               </span>
             </div>
             <p className="text-xs text-slate-300">
-              Kurs resmi konversi transaksi antara USD ($), Egyptian Pounds (ج.م), dan Rupiah (IDR).
+              Konversi interbank & transaksi dua arah: USD ⇄ EGP, USD ⇄ IDR, dan EGP ⇄ IDR secara otomatis.
             </p>
           </div>
         </div>
@@ -182,7 +281,7 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
             onClick={handleRefresh}
             disabled={isRefreshing}
             className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/40 transition-all flex items-center space-x-1.5 shadow-sm"
-            title="Tarik data kurs pasar dan formula PayPal terbaru langsung"
+            title="Tarik data kurs pasar terbaru sekarang"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>{isRefreshing ? 'Memperbarui...' : 'Refresh Kurs Real-Time'}</span>
@@ -215,96 +314,200 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
           </div>
         )}
 
-        {/* Currency Highlight Cards */}
+        {/* Currency Highlight Cards (3-Column Grid) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1: USD to EGP */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
-              <span>Kurs USD ➔ EGP (Mesir)</span>
-              <span className="text-[10px] bg-sky-50 text-sky-700 font-bold px-1.5 py-0.5 rounded border border-sky-200">
-                1 USD
-              </span>
-            </div>
-            <div className="flex items-baseline space-x-2 my-1">
-              <span className="text-2xl font-black text-slate-900 font-mono">
-                {isLoading ? '...' : `${currentEgpRate} EGP`}
-              </span>
-              <span className="text-xs font-semibold text-slate-400">ج.م</span>
-            </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between items-center">
-              <span>Pasar Interbank:</span>
-              <span className="font-mono font-bold text-slate-700">
-                {data?.interbankEgp ? `${data.interbankEgp} EGP` : '52.14 EGP'}
-              </span>
-            </div>
-            <div className="text-[11px] text-slate-500 flex justify-between items-center">
-              <span>PayPal Spread Fee:</span>
-              <span className="font-mono font-bold text-indigo-600">
-                {data?.paypalSpreadPercent ?? 4.0}%
-              </span>
-            </div>
-          </div>
-
-          {/* Card 2: USD to IDR */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
-              <span>Kurs USD ➔ IDR (Indonesia)</span>
-              <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded border border-emerald-200">
-                1 USD
-              </span>
-            </div>
-            <div className="flex items-baseline space-x-2 my-1">
-              <span className="text-2xl font-black text-slate-900 font-mono">
-                {isLoading ? '...' : `Rp ${currentIdrRate.toLocaleString()}`}
-              </span>
-            </div>
-            <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-100 flex justify-between items-center">
-              <span>Pasar Interbank:</span>
-              <span className="font-mono font-bold text-slate-700">
-                Rp 17.776
-              </span>
-            </div>
-            <div className="text-[11px] text-slate-500 flex justify-between items-center">
-              <span>Status Feed:</span>
-              <span className="font-semibold text-emerald-700">Aktif & Sinkron</span>
-            </div>
-          </div>
-
-          {/* Card 3: Status & Last Sync */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          {/* Card 1: USD to EGP & Vice Versa */}
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
-                <span>Sinkronisasi Otomatis</span>
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                <span>Kurs USD ⇄ EGP (Mesir)</span>
+                <span className="text-[10px] bg-sky-50 text-sky-700 font-bold px-2 py-0.5 rounded border border-sky-200">
+                  1 USD
+                </span>
               </div>
-              <div className="text-sm font-bold text-slate-800 my-1 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>Auto-Refresh Tiap 30 Menit</span>
+              <div className="flex items-baseline space-x-2 my-1">
+                <span className="text-2xl font-black text-slate-900 font-mono">
+                  {isLoading ? '...' : `${currentEgpRate} EGP`}
+                </span>
+                <span className="text-xs font-semibold text-slate-400">ج.م</span>
               </div>
-              <p className="text-[11px] text-slate-500">
-                Terakhir diperbarui:{' '}
-                <strong className="text-slate-700 font-mono">
-                  {formatDateTime(data?.lastUpdated || '')}
-                </strong>
-              </p>
+
+              {/* Vice Versa Highlight Pill */}
+              <div className="inline-flex items-center space-x-1.5 px-2 py-1 rounded-lg bg-sky-50/80 border border-sky-200 text-sky-800 text-[11px] font-bold my-1.5">
+                <ArrowRightLeft className="w-3 h-3 text-sky-600 flex-shrink-0" />
+                <span>1 EGP = ${currentEgpToUsd.toFixed(4)} USD</span>
+              </div>
             </div>
 
-            {/* Quick Conversion Tester */}
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-              <div className="flex items-center space-x-1">
-                <span className="text-[11px] text-slate-400 font-bold">$</span>
+            <div className="pt-2 border-t border-slate-100 space-y-1 text-[11px] text-slate-500">
+              <div className="flex justify-between items-center">
+                <span>Pasar Interbank:</span>
+                <span className="font-mono font-bold text-slate-700">
+                  {data?.interbankEgp ? `${data.interbankEgp} EGP` : '51.70 EGP'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Spread Fee:</span>
+                <span className="font-mono font-bold text-indigo-600">
+                  {data?.paypalSpreadPercent ?? 0}%
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: USD to IDR & Vice Versa */}
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+                <span>Kurs USD ⇄ IDR (Indonesia)</span>
+                <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded border border-emerald-200">
+                  1 USD
+                </span>
+              </div>
+              <div className="flex items-baseline space-x-2 my-1">
+                <span className="text-2xl font-black text-slate-900 font-mono">
+                  {isLoading ? '...' : `Rp ${Math.round(currentIdrRate).toLocaleString('id-ID')}`}
+                </span>
+              </div>
+
+              {/* Vice Versa Highlight Pill */}
+              <div className="inline-flex items-center space-x-1.5 px-2 py-1 rounded-lg bg-emerald-50/80 border border-emerald-200 text-emerald-800 text-[11px] font-bold my-1.5">
+                <ArrowRightLeft className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                <span>100.000 IDR = ${(100000 * currentIdrToUsd).toFixed(2)} USD</span>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 space-y-1 text-[11px] text-slate-500">
+              <div className="flex justify-between items-center">
+                <span>Pasar Interbank:</span>
+                <span className="font-mono font-bold text-slate-700">
+                  Rp {Math.round(data?.interbankIdr || currentIdrRate).toLocaleString('id-ID')}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Status Feed:</span>
+                <span className="font-semibold text-emerald-700 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Aktif & Real-Time (5m cache)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: EGP to IDR Cross-Rate & Sync Info */}
+          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
+                <span>Cross-Rate EGP ⇄ IDR</span>
+                <span className="text-[10px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded border border-purple-200">
+                  Cross
+                </span>
+              </div>
+              <div className="flex items-baseline space-x-2 my-1">
+                <span className="text-2xl font-black text-slate-900 font-mono">
+                  {isLoading
+                    ? '...'
+                    : `Rp ${currentEgpToIdr.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`}
+                </span>
+                <span className="text-xs font-semibold text-slate-400">/ 1 EGP</span>
+              </div>
+
+              {/* Vice Versa Highlight Pill */}
+              <div className="inline-flex items-center space-x-1.5 px-2 py-1 rounded-lg bg-purple-50/80 border border-purple-200 text-purple-800 text-[11px] font-bold my-1.5">
+                <ArrowRightLeft className="w-3 h-3 text-purple-600 flex-shrink-0" />
+                <span>1.000 IDR = {(1000 * currentIdrToEgp).toFixed(2)} EGP</span>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 space-y-1 text-[11px] text-slate-500">
+              <div className="flex justify-between items-center">
+                <span>Sinkronisasi Otomatis:</span>
+                <span className="font-semibold text-slate-700">Tiap 5 Menit</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Terakhir diperbarui:</span>
+                <span className="font-mono text-slate-700 font-semibold">
+                  {formatDateTime(data?.lastUpdated || '')}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Interactive Bidirectional Calculator */}
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div className="flex items-center space-x-2">
+              <ArrowRightLeft className="w-4 h-4 text-indigo-600" />
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                Kalkulator Konversi Real-Time (Dua Arah / Vice Versa)
+              </h3>
+            </div>
+            <span className="text-[11px] text-slate-500 font-medium">
+              Pilih arah konversi di bawah untuk menghitung seketika
+            </span>
+          </div>
+
+          {/* Direction Selector Tabs */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4">
+            {(Object.keys(DIRECTION_LABELS) as ConversionDirection[]).map((dir) => {
+              const active = calcDirection === dir;
+              return (
+                <button
+                  key={dir}
+                  type="button"
+                  onClick={() => handleDirectionChange(dir)}
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border text-center ${
+                    active
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm ring-2 ring-indigo-200'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-indigo-50 hover:border-indigo-300'
+                  }`}
+                >
+                  {DIRECTION_LABELS[dir].label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Interactive Calculator Input & Output Row */}
+          <div className="bg-slate-50 p-3.5 sm:p-4 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Input Box */}
+            <div className="flex-1 flex items-center space-x-2">
+              <span className="text-xs font-bold text-slate-500 w-16 sm:w-20 flex-shrink-0">
+                Jumlah {dirConfig.from.split(' ')[0]}:
+              </span>
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                  {dirConfig.prefix}
+                </span>
                 <input
                   type="number"
-                  min="1"
-                  value={calcUsd}
-                  onChange={(e) => setCalcUsd(Math.max(0, parseFloat(e.target.value) || 0))}
-                  className="w-16 bg-slate-50 border border-slate-300 rounded px-1.5 py-0.5 text-xs font-bold text-slate-900"
+                  min="0"
+                  step="any"
+                  value={calcAmount}
+                  onChange={(e) => setCalcAmount(Math.max(0, parseFloat(e.target.value) || 0))}
+                  className="w-full bg-white border border-slate-300 rounded-xl pl-8 pr-3 py-2 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  placeholder="0"
                 />
               </div>
-              <span className="text-slate-400 font-bold">➔</span>
-              <span className="font-bold text-indigo-700 font-mono text-[11px]">
-                EGP {Math.round(calcUsd * currentEgpRate).toLocaleString()}
-              </span>
+            </div>
+
+            {/* Direction Indicator */}
+            <div className="hidden md:flex items-center justify-center px-2 text-indigo-400">
+              <ArrowRight className="w-5 h-5" />
+            </div>
+
+            {/* Result Box */}
+            <div className="flex-1 flex items-center justify-between md:justify-end gap-3 bg-white md:bg-transparent p-2.5 md:p-0 rounded-xl border md:border-0 border-slate-200">
+              <span className="text-xs font-bold text-slate-500 md:hidden">Hasil:</span>
+              <div className="text-right">
+                <div className="text-lg sm:text-xl font-black text-indigo-900 font-mono tracking-tight">
+                  {calcResult.resultFormatted}
+                </div>
+                <div className="text-[10px] text-slate-500 font-medium">
+                  {calcResult.rateFormula} • {calcResult.note}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -314,7 +517,7 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
           <div className="bg-white p-5 rounded-2xl border border-indigo-200 shadow-sm animate-in fade-in duration-200 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-900 flex items-center gap-2">
               <Sliders className="w-4 h-4 text-indigo-600" />
-              <span>Konfigurasi Mode & Spread Kurs PayPal</span>
+              <span>Konfigurasi Mode & Spread Kurs Real-Time</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -332,7 +535,7 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
                       onChange={() => setEditMode('paypal_realtime')}
                       className="text-indigo-600 focus:ring-indigo-500"
                     />
-                    <span>PayPal Real-Time (Rekomendasi)</span>
+                    <span>Real-Time Pasar (Rekomendasi)</span>
                   </label>
                   <label className="flex items-center space-x-2 text-xs font-semibold text-slate-800 cursor-pointer">
                     <input
@@ -350,7 +553,7 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
               {/* PayPal Spread Percentage */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  2. PayPal Conversion Spread Fee (%)
+                  2. Conversion Spread Fee (%)
                 </label>
                 <div className="flex items-center space-x-2">
                   <input
@@ -366,27 +569,50 @@ export default function AdminCurrencyPanel({ onRateUpdated }: AdminCurrencyPanel
                   <span className="text-xs font-bold text-slate-500">%</span>
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">
-                  Standar resmi PayPal: 3.5% s/d 4.0% di atas kurs interbank.
+                  0% untuk kurs pasar murni, atau 3.5% s/d 4.0% jika menyesuaikan fee PayPal.
                 </p>
               </div>
 
               {/* Manual Override Input */}
-              {editMode === 'manual' && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    3. Nilai Manual 1 USD = ... EGP
-                  </label>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="number"
-                      min="1"
-                      step="0.1"
-                      value={editManualEgp}
-                      onChange={(e) => setEditManualEgp(Math.max(1, parseFloat(e.target.value) || 0))}
-                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500"
-                    />
-                    <span className="text-xs font-bold text-slate-500">EGP</span>
+              {editMode === 'manual' ? (
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Manual 1 USD = ... EGP
+                    </label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        min="1"
+                        step="0.1"
+                        value={editManualEgp}
+                        onChange={(e) => setEditManualEgp(Math.max(1, parseFloat(e.target.value) || 0))}
+                        className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500"
+                      />
+                      <span className="text-xs font-bold text-slate-500">EGP</span>
+                    </div>
                   </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                      Manual 1 USD = ... IDR
+                    </label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        min="1000"
+                        step="50"
+                        value={editManualIdr}
+                        onChange={(e) => setEditManualIdr(Math.max(1000, parseFloat(e.target.value) || 0))}
+                        className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500"
+                      />
+                      <span className="text-xs font-bold text-slate-500">IDR</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-[11px] text-slate-600 flex flex-col justify-center">
+                  <span className="font-bold text-indigo-900 mb-0.5">Mode Otomatis Aktif</span>
+                  <span>Data kurs diperbarui otomatis dari 3 provider API global setiap 5 menit dengan auto-fallback.</span>
                 </div>
               )}
             </div>
