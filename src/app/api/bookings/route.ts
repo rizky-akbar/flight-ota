@@ -3,6 +3,9 @@ import { generateBookingId, saveInquiry, getWhatsAppNumber } from '@/lib/storage
 import { formatWhatsAppMessage, buildWhatsAppAdminUrl } from '@/lib/whatsapp';
 import { BookingInquiry } from '@/lib/travelport/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -16,7 +19,8 @@ export async function POST(request: NextRequest) {
     }
 
     const bookingId = generateBookingId();
-    const adminPhone = getWhatsAppNumber();
+    const cookiePhone = request.cookies.get('admin_wa_number')?.value;
+    const adminPhone = cookiePhone || getWhatsAppNumber();
 
     const booking: BookingInquiry = {
       bookingId,

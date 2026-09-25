@@ -3,6 +3,9 @@ import { getMarkupSettings, saveMarkupSettings } from '@/lib/storage';
 import { MarkupSettings } from '@/lib/travelport/markup';
 import { getUsdToEgpRate } from '@/lib/currency';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const settings = getMarkupSettings();

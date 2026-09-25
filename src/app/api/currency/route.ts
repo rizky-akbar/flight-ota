@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { fetchLiveExchangeRates, getUsdToEgpRate, getUsdToIdrRate, getStoredCurrencySettings } from '@/lib/currency';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     // Attempt non-forced sync if cache expired

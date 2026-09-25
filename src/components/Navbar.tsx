@@ -13,14 +13,30 @@ export default function Navbar({ currency, onCurrencyChange }: NavbarProps) {
   const [adminPhone, setAdminPhone] = useState(process.env.NEXT_PUBLIC_WHATSAPP_ADMIN || '6281234567890');
 
   useEffect(() => {
-    fetch('/api/admin/whatsapp')
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('admin_whatsapp_number');
+      if (cached) setAdminPhone(cached);
+    }
+
+    fetch('/api/admin/whatsapp', { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.whatsappNumber) {
           setAdminPhone(data.whatsappNumber);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('admin_whatsapp_number', data.whatsappNumber);
+          }
         }
       })
       .catch(() => {});
+
+    const handleUpdate = (e: any) => {
+      if (e.detail) {
+        setAdminPhone(e.detail);
+      }
+    };
+    window.addEventListener('admin-whatsapp-updated', handleUpdate);
+    return () => window.removeEventListener('admin-whatsapp-updated', handleUpdate);
   }, []);
 
   return (

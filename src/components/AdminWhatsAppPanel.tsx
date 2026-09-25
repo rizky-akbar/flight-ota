@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, Save, Phone, Check, AlertCircle, ExternalLink, ShieldCheck } from 'lucide-react';
+import { MessageCircle, Save, Phone, Check, AlertCircle, ExternalLink, RefreshCw } from 'lucide-react';
 
 interface AdminWhatsAppPanelProps {
   onWhatsAppUpdated?: (newNumber: string) => void;
 }
 
 export default function AdminWhatsAppPanel({ onWhatsAppUpdated }: AdminWhatsAppPanelProps) {
-  const [whatsappNumber, setWhatsappNumber] = useState<string>('');
+  const [whatsappNumber, setWhatsappNumber] = useState<string>('6281234567890');
   const [inputNumber, setInputNumber] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -17,12 +17,24 @@ export default function AdminWhatsAppPanel({ onWhatsAppUpdated }: AdminWhatsAppP
 
   const fetchWhatsAppNumber = async () => {
     setIsLoading(true);
+    // Instant initial load from localStorage
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('admin_whatsapp_number');
+      if (cached) {
+        setWhatsappNumber(cached);
+        setInputNumber(cached);
+      }
+    }
+
     try {
-      const res = await fetch('/api/admin/whatsapp');
+      const res = await fetch('/api/admin/whatsapp', { cache: 'no-store' });
       const data = await res.json();
       if (data.success && data.whatsappNumber) {
         setWhatsappNumber(data.whatsappNumber);
         setInputNumber(data.whatsappNumber);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('admin_whatsapp_number', data.whatsappNumber);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch WhatsApp number:', err);
@@ -49,33 +61,47 @@ export default function AdminWhatsAppPanel({ onWhatsAppUpdated }: AdminWhatsAppP
       const res = await fetch('/api/admin/whatsapp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ whatsappNumber: inputNumber }),
+        cache: 'no-store',
+        body: JSON.stringify({ whatsappNumber: inputNumber.trim() }),
       });
       const data = await res.json();
 
       if (data.success) {
-        setWhatsappNumber(data.whatsappNumber);
-        setInputNumber(data.whatsappNumber);
+        const newNum = data.whatsappNumber;
+        setWhatsappNumber(newNum);
+        setInputNumber(newNum);
         setIsEditing(false);
         setToastMessage({ type: 'success', text: 'Nomor WhatsApp Admin berhasil diperbarui!' });
-        if (onWhatsAppUpdated) onWhatsAppUpdated(data.whatsappNumber);
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('admin_whatsapp_number', newNum);
+          document.cookie = `admin_wa_number=${newNum}; path=/; max-age=31536000; SameSite=Lax`;
+          window.dispatchEvent(new CustomEvent('admin-whatsapp-updated', { detail: newNum }));
+        }
+
+        if (onWhatsAppUpdated) onWhatsAppUpdated(newNum);
         setTimeout(() => setToastMessage(null), 4000);
       } else {
         setToastMessage({ type: 'error', text: data.error || 'Gagal menyimpan nomor WhatsApp.' });
       }
     } catch (err: any) {
-      setToastMessage({ type: 'error', text: err.message || 'Terjadi kesalahan jaringan.' });
+      setToastMessage({ type: 'error', text: err.message || 'Terjadi kesalahan jaringan saat menyimpan.' });
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Format preview with spaces for readability: 6281234567890 -> +62 812-3456-7890
+  // Format preview with spaces for readability:
+  // Indonesia: 6281234567890 -> +62 812-3456-7890
+  // Egypt: 201012345678 -> +20 10-1234-5678
   const formatDisplayPhone = (num: string) => {
     if (!num) return '';
     const cleaned = num.replace(/[^\d]/g, '');
     if (cleaned.startsWith('62') && cleaned.length >= 10) {
       return `+62 ${cleaned.substring(2, 5)}-${cleaned.substring(5, 9)}-${cleaned.substring(9)}`;
+    }
+    if (cleaned.startsWith('20') && cleaned.length >= 10) {
+      return `+20 ${cleaned.substring(2, 4)}-${cleaned.substring(4, 8)}-${cleaned.substring(8)}`;
     }
     return `+${cleaned}`;
   };
@@ -140,38 +166,47 @@ export default function AdminWhatsAppPanel({ onWhatsAppUpdated }: AdminWhatsAppP
               Ubah Nomor
             </button>
           ) : (
-            <form onSubmit={handleSave} className="flex flex-wrap items-center gap-2">
-              <div className="relative">
+            <form onSubmit={handleSave} className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <div>
                 <input
                   type="text"
                   value={inputNumber}
                   onChange={(e) => setInputNumber(e.target.value)}
-                  placeholder="Contoh: 081234567890 / 628..."
-                  className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-52"
+                  placeholder="Contoh: 081234567890 atau +201..."
+                  className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-56"
                   autoFocus
                 />
+                <span className="block text-[10px] text-slate-400 mt-1">
+                  Format otomatis: Indonesia (08../62..) / Mesir (01../20..)
+                </span>
               </div>
 
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all flex items-center space-x-1"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span>{isSaving ? 'Menyimpan...' : 'Simpan'}</span>
-              </button>
+              <div className="flex items-center gap-1.5 self-start sm:self-center">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all flex items-center space-x-1 disabled:opacity-60"
+                >
+                  {isSaving ? (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isSaving ? 'Menyimpan...' : 'Simpan'}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setIsEditing(false);
-                  setInputNumber(whatsappNumber);
-                  setToastMessage(null);
-                }}
-                className="px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100"
-              >
-                Batal
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setInputNumber(whatsappNumber);
+                    setToastMessage(null);
+                  }}
+                  className="px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100"
+                >
+                  Batal
+                </button>
+              </div>
             </form>
           )}
         </div>

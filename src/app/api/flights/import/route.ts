@@ -3,6 +3,9 @@ import { csvToFlightOffers, getFlightScheduleSampleCsv } from '@/lib/csvHelper';
 import { importCustomFlights } from '@/lib/storage';
 import { FlightOffer } from '@/lib/travelport/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET to download template or list custom flights
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

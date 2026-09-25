@@ -3,6 +3,9 @@ import { searchGalileoFlights } from '@/lib/travelport/galileoClient';
 import { flightOffersToCsv } from '@/lib/csvHelper';
 import { FlightSearchQuery } from '@/lib/travelport/types';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

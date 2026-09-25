@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import { getFilePath, safeReadFileSync, safeWriteFileSync } from './storage';
 
 export interface CurrencyRateInfo {
   interbankRate: number; // Wholesale market rate (e.g. 52.14)
@@ -25,8 +24,6 @@ export interface CurrencySettings {
   lastSyncTime: string;
   source: string; // 'paypal_realtime' | 'paypal_official_api' | 'manual'
 }
-
-const SETTINGS_FILE = path.join(process.cwd(), 'data', 'currency_settings.json');
 
 // Default initial baseline settings
 export const DEFAULT_CURRENCY_SETTINGS: CurrencySettings = {
@@ -62,27 +59,17 @@ let inMemorySettings: CurrencySettings | null = null;
 let lastFetchTimestamp = 0;
 
 /**
- * Ensures data directory exists
- */
-function ensureDataDir() {
-  const dir = path.dirname(SETTINGS_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
-
-/**
- * Loads currency settings from disk
+ * Loads currency settings from disk or serverless tmp
  */
 export function getStoredCurrencySettings(): CurrencySettings {
   if (inMemorySettings) {
     return inMemorySettings;
   }
 
-  ensureDataDir();
-  if (fs.existsSync(SETTINGS_FILE)) {
+  const filePath = getFilePath('currency_settings.json');
+  const content = safeReadFileSync(filePath, 'currency_settings.json');
+  if (content) {
     try {
-      const content = fs.readFileSync(SETTINGS_FILE, 'utf-8');
       const parsed = JSON.parse(content);
       inMemorySettings = {
         ...DEFAULT_CURRENCY_SETTINGS,
@@ -104,15 +91,15 @@ export function getStoredCurrencySettings(): CurrencySettings {
 }
 
 /**
- * Saves currency settings to disk
+ * Saves currency settings to disk or serverless tmp
  */
 export function saveStoredCurrencySettings(settings: CurrencySettings): CurrencySettings {
-  ensureDataDir();
   inMemorySettings = {
     ...settings,
     lastSyncTime: new Date().toISOString(),
   };
-  fs.writeFileSync(SETTINGS_FILE, JSON.stringify(inMemorySettings, null, 2), 'utf-8');
+  const filePath = getFilePath('currency_settings.json');
+  safeWriteFileSync(filePath, JSON.stringify(inMemorySettings, null, 2));
   return inMemorySettings;
 }
 

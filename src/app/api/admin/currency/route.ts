@@ -6,6 +6,9 @@ import {
   CurrencySettings,
 } from '@/lib/currency';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const settings = await fetchLiveExchangeRates(false);
