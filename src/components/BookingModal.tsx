@@ -148,51 +148,52 @@ export default function BookingModal({
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const egpPrice = offer.price.totalAmountEgp || Math.round(offer.price.totalAmountUsd * 49.0);
+  const egpPrice = offer.price.totalAmountEgp || Math.round(offer.price.totalAmountUsd * 51.70);
   const formattedPrice = currency === 'EGP'
     ? `EGP ${egpPrice.toLocaleString()} (~$${offer.price.totalAmountUsd.toLocaleString()} USD)`
     : `$${offer.price.totalAmountUsd.toLocaleString()} USD (~EGP ${egpPrice.toLocaleString()})`;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4">
+      <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200 my-auto">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-sky-800 to-slate-900 text-white p-5 flex items-center justify-between">
-          <div>
+        <div className="bg-gradient-to-r from-sky-800 to-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
+          <div className="pr-2">
             <div className="flex items-center space-x-2">
-              <Plane className="w-5 h-5 text-amber-400 -rotate-45" />
-              <h3 className="font-black text-lg text-white">
-                {submittedData ? 'Data Berhasil Dikirim!' : 'Formulir Pemesanan & WhatsApp Admin'}
+              <Plane className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 -rotate-45 flex-shrink-0" />
+              <h3 className="font-extrabold text-sm sm:text-lg text-white">
+                {submittedData ? 'Data Berhasil Terkirim!' : 'Formulir Pemesanan Tiket'}
               </h3>
             </div>
-            <p className="text-xs text-sky-200">
+            <p className="text-[11px] sm:text-xs text-sky-200 truncate mt-0.5">
               {offer.validatingCarrierName} • {offer.outbound.origin} ➔ {offer.outbound.destination}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center flex-shrink-0 active:scale-95"
+            aria-label="Tutup"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 max-h-[75vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 max-h-[80vh] sm:max-h-[75vh] overflow-y-auto">
           {submittedData ? (
             /* STEP 2: WHATSAPP SUCCESS SCREEN */
-            <div className="space-y-6 text-center py-3">
-              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
-                <CheckCircle2 className="w-10 h-10" />
+            <div className="space-y-5 text-center py-2">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10" />
               </div>
 
               <div>
-                <h4 className="text-xl font-black text-slate-900">Reservasi Disiapkan!</h4>
-                <div className="inline-block mt-2 px-3.5 py-1 rounded-lg bg-slate-100 border border-slate-300 font-mono text-sm font-bold text-slate-800">
+                <h4 className="text-lg sm:text-xl font-black text-slate-900">Reservasi Telah Siap!</h4>
+                <div className="inline-block mt-2 px-3 py-1 rounded-lg bg-slate-100 border border-slate-300 font-mono text-xs sm:text-sm font-bold text-slate-800">
                   Kode Booking: #{submittedData.bookingId}
                 </div>
-                <p className="text-xs text-slate-500 mt-2 max-w-md mx-auto">
-                  Data penumpang Anda telah tercatat. Silakan klik tombol di bawah untuk langsung terhubung dengan WhatsApp Admin resmi kami untuk konfirmasi kode booking (PNR) dan pembayaran.
+                <p className="text-xs text-slate-500 mt-2 max-w-md mx-auto leading-relaxed">
+                  Data Anda telah dicatat di sistem. Klik tombol hijau di bawah untuk langsung membuka WhatsApp Admin kami guna verifikasi PNR dan pembayaran.
                 </p>
               </div>
 
@@ -202,32 +203,32 @@ export default function BookingModal({
                   href={submittedData.whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-4 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base shadow-xl hover:shadow-emerald-600/30 flex items-center justify-center space-x-3 transition-all transform hover:-translate-y-0.5"
+                  className="w-full py-3.5 sm:py-4 px-4 sm:px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-base shadow-xl hover:shadow-emerald-600/30 flex items-center justify-center space-x-2.5 transition-all transform active:scale-98"
                 >
-                  <MessageCircle className="w-6 h-6 fill-white" />
+                  <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 fill-white flex-shrink-0" />
                   <span>Kirim Data ke WhatsApp Admin</span>
                 </a>
 
-                <div className="flex items-center justify-center space-x-3">
+                <div className="flex items-center justify-center">
                   <button
                     type="button"
                     onClick={handleCopyMessage}
-                    className="px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs flex items-center space-x-2 transition-colors"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center space-x-2 transition-colors active:scale-95"
                   >
                     {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
-                    <span>{copied ? 'Tersalin ke Clipboard!' : 'Salin Teks WhatsApp'}</span>
+                    <span>{copied ? 'Teks WhatsApp Tersalin!' : 'Salin Pesan Teks'}</span>
                   </button>
                 </div>
               </div>
 
-              {/* QR Code Section for Desktop Users */}
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 max-w-md mx-auto text-center">
+              {/* QR Code Section for Desktop Only */}
+              <div className="hidden sm:block p-4 bg-slate-50 rounded-xl border border-slate-200 max-w-md mx-auto text-center">
                 <div className="text-xs font-bold text-slate-700 mb-2 flex items-center justify-center gap-1.5">
                   <QrCode className="w-4 h-4 text-sky-600" />
-                  <span>Buka di Ponsel? Scan QR Code WhatsApp</span>
+                  <span>Buka di Ponsel? Scan QR Code</span>
                 </div>
                 <div className="bg-white p-3 rounded-lg inline-block shadow-sm border border-slate-100">
-                  <QRCodeSVG value={submittedData.whatsappUrl} size={150} />
+                  <QRCodeSVG value={submittedData.whatsappUrl} size={140} />
                 </div>
                 <p className="text-[11px] text-slate-400 mt-2">
                   Arahkan kamera HP ke QR Code untuk langsung membuka chat WhatsApp dengan admin.
@@ -235,13 +236,13 @@ export default function BookingModal({
               </div>
 
               {/* WhatsApp Message Preview */}
-              <div className="text-left bg-slate-900 text-slate-200 p-4 rounded-xl text-xs font-mono max-h-48 overflow-y-auto whitespace-pre-wrap border border-slate-800">
+              <div className="text-left bg-slate-900 text-slate-200 p-3 sm:p-4 rounded-xl text-[11px] sm:text-xs font-mono max-h-36 sm:max-h-48 overflow-y-auto whitespace-pre-wrap border border-slate-800">
                 {submittedData.whatsappMessage}
               </div>
             </div>
           ) : (
             /* STEP 1: FILL FORM */
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
               {errorMsg && (
                 <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center space-x-2">
                   <ShieldAlert className="w-4 h-4 flex-shrink-0" />
@@ -250,31 +251,31 @@ export default function BookingModal({
               )}
 
               {/* Flight Summary Card */}
-              <div className="bg-sky-50 border border-sky-200 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="bg-sky-50 border border-sky-200 rounded-xl p-3 sm:p-3.5 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <div>
-                  <span className="font-bold text-sky-900 block text-sm">
+                  <span className="font-extrabold text-sky-900 block text-xs sm:text-sm">
                     {offer.validatingCarrierName} ({offer.validatingCarrier})
                   </span>
-                  <span className="text-sky-700">
+                  <span className="text-sky-700 text-[11px] sm:text-xs">
                     {offer.outbound.origin} ➔ {offer.outbound.destination} • {offer.cabinClass} • {offer.baggageSummary}
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-sky-600 block">Total Estimasi</span>
-                  <span className="text-base font-black text-sky-900">{formattedPrice}</span>
+                  <span className="text-[10px] text-sky-600 block">Total Tarif</span>
+                  <span className="text-sm sm:text-base font-black text-sky-900">{formattedPrice}</span>
                 </div>
               </div>
 
               {/* Contact Person Details */}
               <div className="space-y-3">
-                <div className="flex items-center space-x-2 border-b border-slate-100 pb-2">
+                <div className="flex items-center space-x-2 border-b border-slate-100 pb-1.5">
                   <User className="w-4 h-4 text-sky-600" />
-                  <h4 className="font-bold text-sm text-slate-900">Data Pemesan (Kontak Utama)</h4>
+                  <h4 className="font-bold text-xs sm:text-sm text-slate-900">Data Pemesan (Kontak Utama)</h4>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
                       Nama Lengkap Pemesan *
                     </label>
                     <input
@@ -283,27 +284,27 @@ export default function BookingModal({
                       placeholder="Contoh: Muhammad Rizky"
                       value={contact.fullName}
                       onChange={(e) => setContact({ ...contact, fullName: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 transition-all"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 transition-all min-h-[40px]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
                       Nomor WhatsApp Aktif *
                     </label>
                     <input
                       type="tel"
                       required
-                      placeholder="Contoh: 081234567890 / +62..."
+                      placeholder="Contoh: 081234567890"
                       value={contact.phoneNumber}
                       onChange={(e) => setContact({ ...contact, phoneNumber: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 transition-all"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 transition-all min-h-[40px]"
                     />
-                    <span className="text-[10px] text-slate-400">Admin akan mengirim PNR & invoice ke nomor ini</span>
+                    <span className="text-[10px] text-slate-400">Admin akan mengirim PNR ke nomor ini</span>
                   </div>
 
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-slate-600 mb-1">
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
                       Alamat Email (Opsional)
                     </label>
                     <input
@@ -311,50 +312,50 @@ export default function BookingModal({
                       placeholder="nama@email.com"
                       value={contact.email}
                       onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 transition-all"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:bg-white focus:ring-2 focus:ring-sky-500 transition-all min-h-[40px]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Passenger Manifest */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
                   <div className="flex items-center space-x-2">
                     <Plane className="w-4 h-4 text-sky-600" />
-                    <h4 className="font-bold text-sm text-slate-900">Data Penumpang ({passengers.length} Pax)</h4>
+                    <h4 className="font-bold text-xs sm:text-sm text-slate-900">Data Penumpang ({passengers.length} Pax)</h4>
                   </div>
                   <button
                     type="button"
                     onClick={addPassenger}
-                    className="text-xs font-bold text-sky-700 hover:text-sky-800"
+                    className="text-xs font-bold text-sky-700 hover:text-sky-800 active:scale-95"
                   >
-                    + Tambah Penumpang
+                    + Tambah Pax
                   </button>
                 </div>
 
                 {passengers.map((pax, index) => (
-                  <div key={pax.id} className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 relative">
+                  <div key={pax.id} className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5 relative">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-xs text-slate-800">Penumpang {index + 1}</span>
                       {passengers.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removePassenger(index)}
-                          className="text-[11px] text-red-600 hover:underline"
+                          className="text-[11px] text-red-600 font-semibold hover:underline"
                         >
                           Hapus
                         </button>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-                      <div className="sm:col-span-2">
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Gelar</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-12 gap-2">
+                      <div className="col-span-2 sm:col-span-2">
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Gelar</label>
                         <select
                           value={pax.title}
                           onChange={(e) => handlePassengerChange(index, 'title', e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold min-h-[38px]"
                         >
                           <option value="Mr">Mr (Tuan)</option>
                           <option value="Mrs">Mrs (Nyonya)</option>
@@ -364,59 +365,57 @@ export default function BookingModal({
                         </select>
                       </div>
 
-                      <div className="sm:col-span-5">
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Nama Depan *</label>
+                      <div className="col-span-1 sm:col-span-5">
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Nama Depan *</label>
                         <input
                           type="text"
                           required
                           placeholder="Sesuai Paspor"
                           value={pax.firstName}
                           onChange={(e) => handlePassengerChange(index, 'firstName', e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                        >
-                        </input>
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 min-h-[38px]"
+                        />
                       </div>
 
-                      <div className="sm:col-span-5">
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Nama Belakang *</label>
+                      <div className="col-span-1 sm:col-span-5">
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Nama Belakang *</label>
                         <input
                           type="text"
                           required
                           placeholder="Sesuai Paspor"
                           value={pax.lastName}
                           onChange={(e) => handlePassengerChange(index, 'lastName', e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                        >
-                        </input>
-                      </div>
-
-                      <div className="sm:col-span-4">
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Nomor Paspor</label>
-                        <input
-                          type="text"
-                          placeholder="Contoh: A12345678"
-                          value={pax.passportNumber}
-                          onChange={(e) => handlePassengerChange(index, 'passportNumber', e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs uppercase"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 min-h-[38px]"
                         />
                       </div>
 
-                      <div className="sm:col-span-4">
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Masa Berlaku Paspor</label>
+                      <div className="col-span-1 sm:col-span-4">
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Nomor Paspor</label>
+                        <input
+                          type="text"
+                          placeholder="A12345678"
+                          value={pax.passportNumber}
+                          onChange={(e) => handlePassengerChange(index, 'passportNumber', e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs uppercase min-h-[38px]"
+                        />
+                      </div>
+
+                      <div className="col-span-1 sm:col-span-4">
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Masa Berlaku Paspor</label>
                         <input
                           type="date"
                           value={pax.passportExpiry}
                           onChange={(e) => handlePassengerChange(index, 'passportExpiry', e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs min-h-[38px]"
                         />
                       </div>
 
-                      <div className="sm:col-span-4">
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Kewarganegaraan</label>
+                      <div className="col-span-2 sm:col-span-4">
+                        <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Kewarganegaraan</label>
                         <select
                           value={pax.nationality}
                           onChange={(e) => handlePassengerChange(index, 'nationality', e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs"
+                          className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs min-h-[38px]"
                         >
                           <option value="Indonesia">Indonesia</option>
                           <option value="Egypt">Egypt (Mesir)</option>
@@ -431,18 +430,18 @@ export default function BookingModal({
               </div>
 
               {/* Special Requests & Services */}
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                <h4 className="font-bold text-xs text-slate-800 uppercase tracking-wider">
-                  Permintaan Khusus & Bantuan Khusus Rute Mesir
+              <div className="p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
+                <h4 className="font-bold text-[11px] sm:text-xs text-slate-800 uppercase tracking-wider">
+                  Permintaan Khusus Rute Mesir
                 </h4>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Pilihan Makanan</label>
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1">Pilihan Makanan</label>
                     <select
                       value={specialRequests.mealPreference}
                       onChange={(e) => setSpecialRequests({ ...specialRequests, mealPreference: e.target.value })}
-                      className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs min-h-[38px]"
                     >
                       <option value="Muslim / Halal Meal (MOML)">Halal / Muslim Meal (MOML)</option>
                       <option value="Vegetarian Meal (VGML)">Vegetarian (VGML)</option>
@@ -452,11 +451,11 @@ export default function BookingModal({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Tambahan Bagasi</label>
+                    <label className="block text-[10px] font-bold text-slate-600 mb-1">Tambahan Bagasi</label>
                     <select
                       value={specialRequests.extraBaggage}
                       onChange={(e) => setSpecialRequests({ ...specialRequests, extraBaggage: e.target.value })}
-                      className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs min-h-[38px]"
                     >
                       <option value="No Extra Baggage">Sesuai Tiket (Termasuk)</option>
                       <option value="+5 kg Bagasi">+5 kg Ekstra</option>
@@ -466,47 +465,47 @@ export default function BookingModal({
                   </div>
                 </div>
 
-                <div className="space-y-2 pt-2 border-t border-slate-200/80 text-xs">
-                  <label className="flex items-center space-x-2 cursor-pointer">
+                <div className="space-y-1.5 pt-2 border-t border-slate-200/80 text-xs">
+                  <label className="flex items-center space-x-2 cursor-pointer py-0.5">
                     <input
                       type="checkbox"
                       checked={specialRequests.studentVisaAssistance}
                       onChange={(e) => setSpecialRequests({ ...specialRequests, studentVisaAssistance: e.target.checked })}
-                      className="rounded text-sky-600 focus:ring-sky-500"
+                      className="rounded text-sky-600 focus:ring-sky-500 w-4 h-4"
                     />
-                    <span className="text-slate-700">
-                      Bantuan Pelajar Al-Azhar Kairo (Keringanan Bagasi / Visa Pelajar)
+                    <span className="text-slate-700 text-[11px] sm:text-xs">
+                      Bantuan Pelajar Al-Azhar Kairo (Keringanan Bagasi & Dokumen)
                     </span>
                   </label>
 
-                  <label className="flex items-center space-x-2 cursor-pointer">
+                  <label className="flex items-center space-x-2 cursor-pointer py-0.5">
                     <input
                       type="checkbox"
                       checked={specialRequests.umrahTransitPackage}
                       onChange={(e) => setSpecialRequests({ ...specialRequests, umrahTransitPackage: e.target.checked })}
-                      className="rounded text-sky-600 focus:ring-sky-500"
+                      className="rounded text-sky-600 focus:ring-sky-500 w-4 h-4"
                     />
-                    <span className="text-slate-700">
-                      Paket Transit Umrah (Stopover Jeddah / Madinah sebelum ke Kairo)
+                    <span className="text-slate-700 text-[11px] sm:text-xs">
+                      Paket Transit Umrah (Stopover Jeddah / Madinah)
                     </span>
                   </label>
 
-                  <label className="flex items-center space-x-2 cursor-pointer">
+                  <label className="flex items-center space-x-2 cursor-pointer py-0.5">
                     <input
                       type="checkbox"
                       checked={specialRequests.wheelchair}
                       onChange={(e) => setSpecialRequests({ ...specialRequests, wheelchair: e.target.checked })}
-                      className="rounded text-sky-600 focus:ring-sky-500"
+                      className="rounded text-sky-600 focus:ring-sky-500 w-4 h-4"
                     />
-                    <span className="text-slate-700">Bantuan Kursi Roda (Wheelchair Assistance)</span>
+                    <span className="text-slate-700 text-[11px] sm:text-xs">Bantuan Kursi Roda (Wheelchair)</span>
                   </label>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">Catatan Tambahan untuk Admin</label>
+                  <label className="block text-[10px] font-bold text-slate-600 mb-1">Catatan Tambahan untuk Admin</label>
                   <textarea
                     rows={2}
-                    placeholder="Contoh: Mohon cari kursi dekat lorong, transit jangan terlalu mepet..."
+                    placeholder="Contoh: Mohon cari kursi dekat lorong, info jadwal transit..."
                     value={contact.notes}
                     onChange={(e) => setContact({ ...contact, notes: e.target.value })}
                     className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs text-slate-900"
@@ -514,35 +513,35 @@ export default function BookingModal({
                 </div>
               </div>
 
-              {/* Submit CTA */}
-              <div className="pt-2 flex items-center justify-between">
-                <div>
-                  <span className="text-xs text-slate-500 block">Total Pembayaran Estimasi</span>
-                  <span className="text-xl font-black text-sky-800">{formattedPrice}</span>
+              {/* Submit CTA Bar (Mobile friendly flex) */}
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100">
+                <div className="flex sm:block justify-between items-baseline">
+                  <span className="text-[11px] text-slate-500 block">Total Estimasi:</span>
+                  <span className="text-lg sm:text-xl font-black text-sky-800">{formattedPrice}</span>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="grid grid-cols-3 sm:flex items-center gap-2">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 transition-colors"
+                    className="col-span-1 sm:col-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 transition-colors text-center active:scale-95"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg hover:shadow-emerald-600/20 transition-all flex items-center space-x-2 disabled:opacity-60"
+                    className="col-span-2 sm:col-auto px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg hover:shadow-emerald-600/20 transition-all flex items-center justify-center space-x-1.5 disabled:opacity-60 active:scale-95"
                   >
                     {isSubmitting ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Menyimpan Reservasi...</span>
+                        <span>Menyimpan...</span>
                       </>
                     ) : (
                       <>
-                        <MessageCircle className="w-4 h-4 fill-white" />
-                        <span>Lanjut ke WhatsApp Admin</span>
+                        <MessageCircle className="w-4 h-4 fill-white flex-shrink-0" />
+                        <span>Kirim ke WA Admin</span>
                       </>
                     )}
                   </button>

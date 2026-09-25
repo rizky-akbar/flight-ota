@@ -173,7 +173,7 @@ export default function AdminWhatsAppPanel({ onWhatsAppUpdated }: AdminWhatsAppP
                   value={inputNumber}
                   onChange={(e) => setInputNumber(e.target.value)}
                   placeholder="Contoh: 081234567890 atau +201..."
-                  className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-56"
+                  className="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-56"
                   autoFocus
                 />
                 <span className="block text-[10px] text-slate-400 mt-1">
