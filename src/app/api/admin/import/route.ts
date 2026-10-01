@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { parseCsv, getBookingsSampleCsv } from '@/lib/csvHelper';
 import { importInquiries } from '@/lib/storage';
 import { BookingInquiry, FlightOffer } from '@/lib/travelport/types';
+import { isAdminAuthenticated } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -23,6 +24,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const contentType = request.headers.get('content-type') || '';
     let inquiries: BookingInquiry[] = [];

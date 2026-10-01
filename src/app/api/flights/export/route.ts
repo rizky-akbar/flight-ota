@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { searchGalileoFlights } from '@/lib/travelport/galileoClient';
 import { flightOffersToCsv } from '@/lib/csvHelper';
 import { FlightSearchQuery } from '@/lib/travelport/types';
+import { isAdminAuthenticated } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const origin = searchParams.get('from')?.toUpperCase() || 'CGK';

@@ -277,8 +277,24 @@ function buildFlightLeg(
 }
 
 export function generateMockGalileoOffers(query: FlightSearchQuery): FlightOffer[] {
-  const isIndonesiaOrigin = ['CGK', 'SUB', 'DPS', 'KNO', 'UPG'].includes(query.origin.toUpperCase());
-  const templates = isIndonesiaOrigin ? TEMPLATES_ID_TO_EG : TEMPLATES_EG_TO_ID;
+  const orig = query.origin.toUpperCase();
+  const dest = query.destination.toUpperCase();
+  const isIndonesiaOrigin = ['CGK', 'SUB', 'DPS', 'KNO', 'UPG'].includes(orig);
+
+  // Determine base templates
+  let templates = isIndonesiaOrigin ? TEMPLATES_ID_TO_EG : TEMPLATES_EG_TO_ID;
+
+  // Regional price and route customization for worldwide destinations
+  const isMiddleEast = ['JED', 'MED', 'RUH', 'DXB', 'AUH', 'DOH', 'IST'].includes(dest);
+  const isEurope = ['LHR', 'CDG', 'FRA', 'AMS'].includes(dest);
+  const isAmericas = ['JFK'].includes(dest);
+  const isOtherAsia = ['KUL', 'SIN', 'BKK', 'HND', 'ICN'].includes(dest);
+
+  let regionPriceFactor = 1.0;
+  if (isMiddleEast) regionPriceFactor = 0.58; // shorter flight (~$310-$390)
+  else if (isEurope) regionPriceFactor = 0.85; // European flight (~$460-$580)
+  else if (isAmericas) regionPriceFactor = 1.45; // Transatlantic (~$850-$980)
+  else if (isOtherAsia) regionPriceFactor = 0.95;
 
   const passengerMultiplier = query.adults + query.children * 0.75 + query.infants * 0.15;
   const cabinMultiplier = query.cabinClass === 'Business' ? 2.8 : query.cabinClass === 'PremiumEconomy' ? 1.5 : 1.0;
@@ -296,7 +312,8 @@ export function generateMockGalileoOffers(query: FlightSearchQuery): FlightOffer
       inbound = buildFlightLeg(returnTemplate, query.destination, query.origin, query.returnDate);
     }
 
-    const baseFareUsd = Math.round(template.basePriceUsd * passengerMultiplier * cabinMultiplier * roundTripMultiplier);
+    const calculatedBase = Math.round(template.basePriceUsd * regionPriceFactor * passengerMultiplier * cabinMultiplier * roundTripMultiplier);
+    const baseFareUsd = Math.max(180, calculatedBase);
     const taxUsd = Math.round(baseFareUsd * 0.14);
     const totalUsd = baseFareUsd + taxUsd;
     const currentUsdToEgp = getUsdToEgpRate();

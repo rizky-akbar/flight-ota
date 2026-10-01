@@ -6,6 +6,7 @@ import {
   getRealtimeRatesMatrix,
   CurrencySettings,
 } from '@/lib/currency';
+import { isAdminAuthenticated } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -16,7 +17,10 @@ const NO_CACHE_HEADERS = {
   Expires: '0',
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401, headers: NO_CACHE_HEADERS });
+  }
   try {
     const settings = await fetchLiveExchangeRates(false);
     const matrix = getRealtimeRatesMatrix();
@@ -38,6 +42,10 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401, headers: NO_CACHE_HEADERS });
+  }
+
   try {
     const body = await request.json();
 

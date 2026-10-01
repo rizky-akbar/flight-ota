@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { csvToFlightOffers, getFlightScheduleSampleCsv } from '@/lib/csvHelper';
 import { importCustomFlights } from '@/lib/storage';
 import { FlightOffer } from '@/lib/travelport/types';
+import { isAdminAuthenticated } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -20,12 +21,20 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { getCustomFlights } = await import('@/lib/storage');
   return NextResponse.json({ success: true, flights: getCustomFlights() });
 }
 
 // POST to upload CSV or JSON
 export async function POST(request: NextRequest) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const contentType = request.headers.get('content-type') || '';
     let offers: FlightOffer[] = [];

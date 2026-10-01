@@ -3,25 +3,86 @@ export interface AirportInfo {
   name: string;
   city: string;
   country: string;
-  countryCode: 'ID' | 'EG' | string;
+  countryCode: 'ID' | 'EG' | 'SA' | 'AE' | 'QA' | 'TR' | 'MY' | 'SG' | 'TH' | 'GB' | 'FR' | 'DE' | 'NL' | 'US' | 'JP' | 'KR' | string;
+  region?: 'Egypt' | 'Indonesia' | 'MiddleEast' | 'Asia' | 'Europe' | 'Americas';
 }
 
 export const SUPPORTED_AIRPORTS: AirportInfo[] = [
-  // Indonesia
-  { code: 'CGK', name: 'Soekarno-Hatta International Airport', city: 'Jakarta', country: 'Indonesia', countryCode: 'ID' },
-  { code: 'SUB', name: 'Juanda International Airport', city: 'Surabaya', country: 'Indonesia', countryCode: 'ID' },
-  { code: 'DPS', name: 'I Gusti Ngurah Rai International Airport', city: 'Denpasar / Bali', country: 'Indonesia', countryCode: 'ID' },
-  { code: 'KNO', name: 'Kualanamu International Airport', city: 'Medan', country: 'Indonesia', countryCode: 'ID' },
-  { code: 'UPG', name: 'Sultan Hasanuddin International Airport', city: 'Makassar', country: 'Indonesia', countryCode: 'ID' },
+  // 🇪🇬 Mesir (Egypt) - Hub Utama
+  { code: 'CAI', name: 'Cairo International Airport', city: 'Cairo', country: 'Egypt', countryCode: 'EG', region: 'Egypt' },
+  { code: 'HBE', name: 'Borg El Arab Airport', city: 'Alexandria', country: 'Egypt', countryCode: 'EG', region: 'Egypt' },
+  { code: 'HRG', name: 'Hurghada International Airport', city: 'Hurghada', country: 'Egypt', countryCode: 'EG', region: 'Egypt' },
+  { code: 'SSH', name: 'Sharm El Sheikh International Airport', city: 'Sharm El Sheikh', country: 'Egypt', countryCode: 'EG', region: 'Egypt' },
+  { code: 'LXR', name: 'Luxor International Airport', city: 'Luxor', country: 'Egypt', countryCode: 'EG', region: 'Egypt' },
+  { code: 'ASW', name: 'Aswan International Airport', city: 'Aswan', country: 'Egypt', countryCode: 'EG', region: 'Egypt' },
 
-  // Egypt
-  { code: 'CAI', name: 'Cairo International Airport', city: 'Cairo', country: 'Egypt', countryCode: 'EG' },
-  { code: 'HBE', name: 'Borg El Arab Airport', city: 'Alexandria', country: 'Egypt', countryCode: 'EG' },
-  { code: 'HRG', name: 'Hurghada International Airport', city: 'Hurghada', country: 'Egypt', countryCode: 'EG' },
-  { code: 'SSH', name: 'Sharm El Sheikh International Airport', city: 'Sharm El Sheikh', country: 'Egypt', countryCode: 'EG' },
-  { code: 'LXR', name: 'Luxor International Airport', city: 'Luxor', country: 'Egypt', countryCode: 'EG' },
-  { code: 'ASW', name: 'Aswan International Airport', city: 'Aswan', country: 'Egypt', countryCode: 'EG' }
+  // 🇮🇩 Indonesia
+  { code: 'CGK', name: 'Soekarno-Hatta International Airport', city: 'Jakarta', country: 'Indonesia', countryCode: 'ID', region: 'Indonesia' },
+  { code: 'SUB', name: 'Juanda International Airport', city: 'Surabaya', country: 'Indonesia', countryCode: 'ID', region: 'Indonesia' },
+  { code: 'DPS', name: 'I Gusti Ngurah Rai International Airport', city: 'Denpasar / Bali', country: 'Indonesia', countryCode: 'ID', region: 'Indonesia' },
+  { code: 'KNO', name: 'Kualanamu International Airport', city: 'Medan', country: 'Indonesia', countryCode: 'ID', region: 'Indonesia' },
+  { code: 'UPG', name: 'Sultan Hasanuddin International Airport', city: 'Makassar', country: 'Indonesia', countryCode: 'ID', region: 'Indonesia' },
+
+  // 🇸🇦 Timur Tengah / Middle East (Transit / Umrah)
+  { code: 'JED', name: 'King Abdulaziz International Airport', city: 'Jeddah', country: 'Saudi Arabia', countryCode: 'SA', region: 'MiddleEast' },
+  { code: 'MED', name: 'Prince Mohammad Bin Abdulaziz Airport', city: 'Medina', country: 'Saudi Arabia', countryCode: 'SA', region: 'MiddleEast' },
+  { code: 'RUH', name: 'King Khalid International Airport', city: 'Riyadh', country: 'Saudi Arabia', countryCode: 'SA', region: 'MiddleEast' },
+  { code: 'DXB', name: 'Dubai International Airport', city: 'Dubai', country: 'United Arab Emirates', countryCode: 'AE', region: 'MiddleEast' },
+  { code: 'AUH', name: 'Zayed International Airport', city: 'Abu Dhabi', country: 'United Arab Emirates', countryCode: 'AE', region: 'MiddleEast' },
+  { code: 'DOH', name: 'Hamad International Airport', city: 'Doha', country: 'Qatar', countryCode: 'QA', region: 'MiddleEast' },
+  { code: 'IST', name: 'Istanbul Airport', city: 'Istanbul', country: 'Turkey', countryCode: 'TR', region: 'MiddleEast' },
+
+  // 🌏 Asia & Tenggara
+  { code: 'KUL', name: 'Kuala Lumpur International Airport', city: 'Kuala Lumpur', country: 'Malaysia', countryCode: 'MY', region: 'Asia' },
+  { code: 'SIN', name: 'Singapore Changi Airport', city: 'Singapore', country: 'Singapore', countryCode: 'SG', region: 'Asia' },
+  { code: 'BKK', name: 'Suvarnabhumi Airport', city: 'Bangkok', country: 'Thailand', countryCode: 'TH', region: 'Asia' },
+  { code: 'HND', name: 'Haneda Airport', city: 'Tokyo', country: 'Japan', countryCode: 'JP', region: 'Asia' },
+  { code: 'ICN', name: 'Incheon International Airport', city: 'Seoul', country: 'South Korea', countryCode: 'KR', region: 'Asia' },
+
+  // 🇪🇺 Eropa & 🌎 Amerika
+  { code: 'LHR', name: 'Heathrow Airport', city: 'London', country: 'United Kingdom', countryCode: 'GB', region: 'Europe' },
+  { code: 'CDG', name: 'Charles de Gaulle Airport', city: 'Paris', country: 'France', countryCode: 'FR', region: 'Europe' },
+  { code: 'FRA', name: 'Frankfurt Airport', city: 'Frankfurt', country: 'Germany', countryCode: 'DE', region: 'Europe' },
+  { code: 'AMS', name: 'Amsterdam Schiphol Airport', city: 'Amsterdam', country: 'Netherlands', countryCode: 'NL', region: 'Europe' },
+  { code: 'JFK', name: 'John F. Kennedy International Airport', city: 'New York', country: 'United States', countryCode: 'US', region: 'Americas' },
 ];
+
+export const EGYPT_AIRPORT_CODES = new Set(['CAI', 'HBE', 'HRG', 'SSH', 'LXR', 'ASW']);
+
+export function isEgyptAirport(code?: string | null): boolean {
+  if (!code) return false;
+  return EGYPT_AIRPORT_CODES.has(code.toUpperCase());
+}
+
+/**
+ * Validates route policy:
+ * - Keberangkatan (Origin) WAJIB dari bandara di Mesir (Kairo, Alexandria, dll).
+ */
+export function validateRoute(
+  origin: string,
+  destination: string,
+  _tripType?: 'one-way' | 'round-trip'
+): { valid: boolean; error?: string } {
+  const orig = (origin || '').toUpperCase();
+  const dest = (destination || '').toUpperCase();
+
+  if (!orig || !dest) {
+    return { valid: false, error: 'Bandara keberangkatan dan tujuan wajib dipilih.' };
+  }
+
+  if (orig === dest) {
+    return { valid: false, error: 'Bandara keberangkatan dan tujuan tidak boleh sama.' };
+  }
+
+  if (!isEgyptAirport(orig)) {
+    return {
+      valid: false,
+      error: 'Keberangkatan hanya tersedia dari bandara di Mesir (seperti Kairo / Alexandria).',
+    };
+  }
+
+  return { valid: true };
+}
 
 export type CabinClass = 'Economy' | 'PremiumEconomy' | 'Business' | 'First';
 

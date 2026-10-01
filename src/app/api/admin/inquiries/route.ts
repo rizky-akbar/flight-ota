@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllInquiries, updateInquiryStatus } from '@/lib/storage';
+import { isAdminAuthenticated } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const inquiries = getAllInquiries();
     return NextResponse.json({
@@ -21,6 +26,10 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { bookingId, status } = body;

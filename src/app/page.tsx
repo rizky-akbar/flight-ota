@@ -26,9 +26,10 @@ export default function HomePage() {
   const [selectedDetailOffer, setSelectedDetailOffer] = useState<FlightOffer | null>(null);
   const [selectedBookingOffer, setSelectedBookingOffer] = useState<FlightOffer | null>(null);
   const [activeQuery, setActiveQuery] = useState<FlightSearchQuery>({
-    origin: 'CGK',
-    destination: 'CAI',
+    origin: 'CAI',
+    destination: 'CGK',
     departureDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+    returnDate: new Date(Date.now() + 28 * 86400000).toISOString().split('T')[0],
     tripType: 'one-way',
     adults: 1,
     children: 0,
@@ -41,8 +42,12 @@ export default function HomePage() {
     handleSearch(activeQuery);
 
     if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem('admin_whatsapp_number');
-      if (cached) setAdminPhone(cached);
+      try {
+        const cached = localStorage.getItem('admin_whatsapp_number');
+        if (cached) setAdminPhone(cached);
+      } catch {
+        // Safe fallback if localStorage disabled
+      }
     }
 
     fetch('/api/admin/whatsapp', { cache: 'no-store' })
@@ -51,7 +56,11 @@ export default function HomePage() {
         if (data.success && data.whatsappNumber) {
           setAdminPhone(data.whatsappNumber);
           if (typeof window !== 'undefined') {
-            localStorage.setItem('admin_whatsapp_number', data.whatsappNumber);
+            try {
+              localStorage.setItem('admin_whatsapp_number', data.whatsappNumber);
+            } catch {
+              // Ignore
+            }
           }
         }
       })
@@ -125,18 +134,18 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-[11px] sm:text-xs font-semibold text-amber-300 mb-4 sm:mb-5">
             <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>Spesialis Rute Indonesia ⇄ Mesir (Kairo & Alexandria)</span>
+            <span>Spesialis Keberangkatan Mesir ke Seluruh Dunia & Pulang-Pergi</span>
           </div>
 
           <h1 className="text-2xl xs:text-3xl sm:text-5xl font-black tracking-tight text-white max-w-3xl mx-auto leading-snug sm:leading-tight">
-            Tiket Pesawat Indonesia ⇄ Mesir <br className="hidden sm:inline" />
+            Tiket Pesawat Mesir ➔ Seluruh Dunia <br className="hidden sm:inline" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-sky-200 to-sky-300">
-              Jadwal & Tarif Live Terverifikasi
+              Sekali Jalan & Pulang-Pergi Resmi
             </span>
           </h1>
 
           <p className="mt-2.5 sm:mt-4 text-xs sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Dapatkan jadwal penerbangan real-time, kuota bagasi pelajar Al-Azhar, paket transit Umrah, dan reservasi langsung via WhatsApp Admin resmi.
+            Dapatkan jadwal penerbangan resmi dari Kairo & Alexandria ke Indonesia dan seluruh dunia, tarif terverifikasi, dan reservasi langsung via WhatsApp Admin resmi.
           </p>
 
           {/* Quick USPs (Mobile Horizontal Swipe) */}

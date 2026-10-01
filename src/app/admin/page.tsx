@@ -2,14 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plane, ArrowLeft, MessageCircle, RefreshCw, CheckCircle2, Clock, XCircle, AlertCircle, Phone, Mail, User, ShieldCheck, Download, Upload } from 'lucide-react';
+import { Plane, ArrowLeft, MessageCircle, RefreshCw, CheckCircle2, Clock, XCircle, AlertCircle, Phone, Mail, User, ShieldCheck, Download, Upload, LogOut, Lock } from 'lucide-react';
 import { BookingInquiry } from '@/lib/travelport/types';
 import ImportExportModal from '@/components/ImportExportModal';
 import AdminMarkupPanel from '@/components/AdminMarkupPanel';
 import AdminWhatsAppPanel from '@/components/AdminWhatsAppPanel';
 import AdminCurrencyPanel from '@/components/AdminCurrencyPanel';
+import AdminLoginForm from '@/components/AdminLoginForm';
 
 export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
   const [inquiries, setInquiries] = useState<BookingInquiry[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
@@ -17,7 +20,37 @@ export default function AdminPage() {
   const [isImportExportOpen, setIsImportExportOpen] = useState<boolean>(false);
   const [importExportType, setImportExportType] = useState<'bookings' | 'flights'>('bookings');
 
+  // Verify auth session on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/admin/auth/check');
+        const data = await res.json();
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch {
+        setIsAuthenticated(false);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/auth/logout', { method: 'POST' });
+    } catch {
+      // Ignore
+    }
+    setIsAuthenticated(false);
+  };
+
   const fetchInquiries = async () => {
+    if (!isAuthenticated) return;
     setIsLoading(true);
     try {
       const res = await fetch('/api/admin/inquiries');
@@ -33,8 +66,10 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    fetchInquiries();
-  }, []);
+    if (isAuthenticated) {
+      fetchInquiries();
+    }
+  }, [isAuthenticated]);
 
   const handleUpdateStatus = async (bookingId: string, status: BookingInquiry['status']) => {
     try {
@@ -74,6 +109,26 @@ export default function AdminPage() {
         return <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-700">Dibatalkan</span>;
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4">
+        <div className="w-10 h-10 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mb-3" />
+        <p className="text-xs font-semibold text-slate-300">Memeriksa hak akses admin...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <AdminLoginForm
+        onLoginSuccess={() => {
+          setIsAuthenticated(true);
+          fetchInquiries();
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
@@ -132,6 +187,16 @@ export default function AdminPage() {
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Muat Ulang</span>
+            </button>
+
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-600/80 hover:bg-red-600 text-white shadow transition-colors"
+              title="Keluar dari sesi admin"
+            >
+              <LogOut className="w-3.5 h-3.5 text-white" />
+              <span>Keluar</span>
             </button>
           </div>
         </div>

@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getMarkupSettings, saveMarkupSettings } from '@/lib/storage';
 import { MarkupSettings } from '@/lib/travelport/markup';
 import { getUsdToEgpRate } from '@/lib/currency';
+import { isAdminAuthenticated } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const settings = getMarkupSettings();
     return NextResponse.json({
@@ -23,6 +28,10 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isAdminAuthenticated(request)) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
 

@@ -54,16 +54,16 @@ ${inbound.segments.map((seg, idx) => {
   if (specialRequests?.studentVisaAssistance) specialList.push(`Student/Al-Azhar Visa Assistance`);
   if (specialRequests?.umrahTransitPackage) specialList.push(`Umrah / Transit Visa Package`);
 
-  const specialText = specialList.length > 0 ? specialList.map(s => `• ${s}`).join('\n') : 'None';
+  const specialText = specialList.length > 0 ? `\n🎁 *PERMINTAAN TAMBAHAN:*\n${specialList.map(s => `• ${s}`).join('\n')}\n` : '';
 
-  const message = `🛫 *BOOKING INQUIRY FLIGHT INDONESIA ⇄ EGYPT* 🛬
+  const message = `🛫 *BOOKING INQUIRY - PORTAL RESERVASI* 🛬
 *Booking Reference:* #${bookingId}
 *Layanan:* NileNusantara Official Booking
 *Date:* ${new Date().toLocaleDateString('id-ID', { dateStyle: 'full' })}
 ═══════════════════════════
 
 📋 *TRIP SUMMARY:*
-• *Route:* ${outbound.origin} ⇄ ${outbound.destination} (${isRoundTrip ? 'Round-Trip' : 'One-Way'})
+• *Route:* ${outbound.origin} ➔ ${outbound.destination} (${isRoundTrip ? 'Round-Trip' : 'One-Way'})
 • *Airline:* ${flightOffer.validatingCarrierName} (${flightOffer.validatingCarrier})
 • *Cabin Class:* ${flightOffer.cabinClass}
 • *Baggage:* ${flightOffer.baggageSummary}
@@ -76,15 +76,10 @@ ${inboundSegmentsText}
 👥 *PASSENGER MANIFEST (${passengers.length} Pax):*
 ${passengersListText}
 
-👤 *CONTACT PERSON:*
+👤 *DATA PEMESAN (KONTAK):*
 • *Name:* ${contact.fullName}
 • *WhatsApp:* ${contact.phoneNumber}
-• *Email:* ${contact.email}
-${contact.notes ? `• *Customer Note:* "${contact.notes}"` : ''}
-
-🎁 *SPECIAL REQUESTS & ADD-ONS:*
-${specialText}
-
+${contact.email ? `• *Email:* ${contact.email}\n` : ''}${contact.notes ? `• *Catatan Tambahan untuk Admin:* "${contact.notes}"\n` : ''}${specialText}
 ═══════════════════════════
 💰 *ESTIMATED TOTAL FARE:*
 *${formattedUsd}* (~${formattedEgp} / ج.م)

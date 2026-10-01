@@ -11,9 +11,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { flightOffer, contact, passengers, specialRequests } = body;
 
-    if (!flightOffer || !contact || !contact.fullName || !contact.phoneNumber) {
+    if (!flightOffer || !contact || !contact.fullName || !contact.phoneNumber || !contact.email) {
       return NextResponse.json(
-        { success: false, error: 'Flight offer, contact name, and WhatsApp number are required' },
+        { success: false, error: 'Flight offer, contact name, WhatsApp number, and email address are required' },
         { status: 400 }
       );
     }

@@ -4,20 +4,20 @@
   "paypalSpreadPercent": 0,
   "autoSync": true,
   "cacheExpiryMinutes": 30,
-  "lastSyncTime": "2026-09-25T11:44:58.627Z",
+  "lastSyncTime": "2026-10-01T18:12:05.495Z",
   "source": "paypal_realtime",
   "rates": {
     "EGP": {
-      "interbankRate": 51.7,
+      "interbankRate": 51.97,
       "paypalSpreadPercent": 0,
-      "paypalRate": 51.7,
-      "lastUpdated": "2026-09-25T11:44:58.627Z"
+      "paypalRate": 51.97,
+      "lastUpdated": "2026-10-01T18:12:05.495Z"
     },
     "IDR": {
-      "interbankRate": 17907,
+      "interbankRate": 17904,
       "paypalSpreadPercent": 0,
-      "paypalRate": 17907,
-      "lastUpdated": "2026-09-25T11:44:58.627Z"
+      "paypalRate": 17904,
+      "lastUpdated": "2026-10-01T18:12:05.495Z"
     }
   },
   "manualRates": {

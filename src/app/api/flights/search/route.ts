@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchGalileoFlights } from '@/lib/travelport/galileoClient';
-import { FlightSearchQuery, CabinClass } from '@/lib/travelport/types';
+import { FlightSearchQuery, CabinClass, validateRoute } from '@/lib/travelport/types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
-    const origin = searchParams.get('from')?.toUpperCase() || 'CGK';
-    const destination = searchParams.get('to')?.toUpperCase() || 'CAI';
+    const origin = searchParams.get('from')?.toUpperCase() || 'CAI';
+    const destination = searchParams.get('to')?.toUpperCase() || 'CGK';
     const departureDate = searchParams.get('departureDate') || new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0];
     const returnDate = searchParams.get('returnDate') || undefined;
     const tripType = (searchParams.get('tripType') as 'one-way' | 'round-trip') || 'one-way';
@@ -18,6 +18,18 @@ export async function GET(request: NextRequest) {
     const children = Math.max(0, parseInt(searchParams.get('children') || '0'));
     const infants = Math.max(0, parseInt(searchParams.get('infants') || '0'));
     const cabinClass = (searchParams.get('cabinClass') as CabinClass) || 'Economy';
+
+    // Route Policy Validation
+    const validation = validateRoute(origin, destination, tripType);
+    if (!validation.valid) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: validation.error,
+        },
+        { status: 400 }
+      );
+    }
 
     const query: FlightSearchQuery = {
       origin,
